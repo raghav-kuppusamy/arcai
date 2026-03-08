@@ -391,22 +391,6 @@ export function Planning() {
         </div>
       </div>
 
-      {/* Epic Progress Chart */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Epic Progress Overview</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={epicProgressData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-            <YAxis tick={{ fontSize: 12 }} label={{ value: 'Progress %', angle: -90, position: 'insideLeft' }} />
-            <Tooltip formatter={(value) => `${value}%`} />
-            <Legend />
-            <Bar dataKey="progress" fill="#3b82f6" name="Current Progress" />
-            <Bar dataKey="target" fill="#e5e7eb" name="Target" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
       {/* Epics List */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="p-6 border-b border-gray-200">
