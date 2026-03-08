@@ -154,12 +154,12 @@ export function Stories() {
   // Static config for the agent's sequential processing steps.
   // Each step has a simulated delay to mimic real AI processing latency.
   const AGENT_STEP_CONFIG = [
-    { id: 's1', label: 'Fetching sprint and backlog data',               detail: '12 stories across 5 statuses loaded',                         delay: 600  },
-    { id: 's2', label: 'Analysing story distribution and team capacity', detail: 'Team capacity: 35 pts · Current committed: 28 pts',           delay: 900  },
-    { id: 's3', label: 'Detecting blockers and at-risk items',           detail: '1 blocked story (PROJ-1248) · 2 stories at risk of slipping', delay: 700  },
-    { id: 's4', label: 'Rebalancing workload across team members',       detail: 'Sarah: 18 pts → 13 pts · David: 8 pts → 13 pts',            delay: 1000 },
-    { id: 's5', label: 'Applying velocity and capacity constraints',     detail: 'Sprint velocity avg: 32 pts · Confidence window: 28–36 pts', delay: 700  },
-    { id: 's6', label: 'Generating optimised sprint recommendations',    detail: '4 actions identified · Projected points: 34 / 35',           delay: 1100 },
+    { id: 's1', label: 'Fetching sprint and backlog data',               detail: '4 Sprint 2 stories · 29 pts committed · 5 pts done so far',               delay: 600  },
+    { id: 's2', label: 'Analysing story distribution and team capacity', detail: 'Mike Johnson: 24 pts active · PROJ-1246 in-review · PROJ-124 in-progress',  delay: 900  },
+    { id: 's3', label: 'Detecting blockers and at-risk items',           detail: 'PROJ-124 (API timeout, critical) in-progress · Sprint 3 has 6 unrefined',  delay: 700  },
+    { id: 's4', label: 'Rebalancing workload across team members',       detail: 'Mike Johnson on critical path · Sarah Chen available for Sprint 3 prep',   delay: 1000 },
+    { id: 's5', label: 'Applying velocity and capacity constraints',     detail: 'Sprint 2 velocity: 28% · 23 days left · 24 pts outstanding',              delay: 700  },
+    { id: 's6', label: 'Generating optimised sprint recommendations',    detail: '3 actions identified · Sprint 2 sign-off achievable by Mar 28',           delay: 1100 },
   ];
 
   const runOptimisation = async (runId: number) => {
@@ -178,18 +178,17 @@ export function Stories() {
     if (agentRunIdRef.current !== runId) return;
 
     setAgentPlan({
-      achievablePoints: 34,
-      targetPoints: 35,
+      achievablePoints: 29,
+      targetPoints: 29,
       actions: [
-        { type: 'escalate', story: 'PROJ-1248', reason: 'Blocked by QA environment — DevOps escalation required',  impact: '+5 pts unblocked'          },
-        { type: 'reassign', story: 'PROJ-1252', reason: "Sarah has 5 pts remaining capacity vs David's 0 pts",      impact: 'Reduces delay risk'         },
-        { type: 'split',    story: 'PROJ-1250', reason: 'Estimated at 13 pts — exceeds single-sprint guideline',    impact: '8 pts deliverable this sprint' },
-        { type: 'defer',    story: 'PROJ-1253', reason: 'Insufficient capacity after rebalancing',                  impact: 'Moves to next sprint'       },
+        { type: 'escalate', story: 'PROJ-124 (API Timeout)',  reason: 'Critical defect in-progress — assign second engineer to resolve by Mar 10',  impact: 'Unblocks Sprint 2 sign-off'       },
+        { type: 'defer',    story: 'PROJ-128 (Update Deps)',  reason: 'Lowest priority refined story — defer if API timeout resolution overruns',    impact: 'Protects Sprint 2 capacity'       },
+        { type: 'reassign', story: 'Sprint 3 Refinement',    reason: 'Sarah Chen available (PROJ-1003 on-hold) — assign to Sprint 3 story prep',   impact: 'Sprint 3 kickoff on Mar 31 safe'  },
       ],
       recommendations: [
-        "Schedule a 30-min blocker standup with DevOps to resolve PROJ-1248's QA environment issue by EOD.",
-        'Refine PROJ-1253 before next sprint planning — missing acceptance criteria will block estimation.',
-        'Cap individual allocations at 2 active stories to reduce context-switching overhead (currently Sarah has 3).',
+        'Resolve PROJ-124 (API timeout) by Mar 10 — it is the last critical blocker for Sprint 2 sign-off on Mar 31.',
+        'Schedule Sprint 3 refinement with Sarah Chen before Mar 25 — 6 unrefined PROJ-1002 stories risk delaying the Mar 31 kickoff.',
+        'Defer PROJ-128 (update deps) if PROJ-124 overruns — 3 pts saved keeps Sprint 2 velocity on target.',
       ],
     });
     setAgentPhase('done');
@@ -280,20 +279,20 @@ export function Stories() {
             </h3>
             <div className="space-y-2 text-sm opacity-95">
               <p>
-                <strong>Velocity Prediction:</strong> Current sprint velocity trending at 25 points (target: 35). 
-                AI recommends completing PROJ-1252 and PROJ-1248 to reach 32 points.
+                <strong>Sprint 2 Progress:</strong> 1 story done (def-002), 1 in-review (PROJ-1246 Stripe integration),
+                1 in-progress (PROJ-124 API timeout — critical), 1 refined and queued (PROJ-128). Sprint at 28% with 23 days left.
               </p>
               <p>
-                <strong>Refinement Alert:</strong> 2 unrefined stories in backlog. Schedule refinement session by Friday 
-                to prevent sprint planning delays next week.
+                <strong>Critical Blocker:</strong> PROJ-124 (API timeout on payment endpoints) is in-progress and must resolve
+                before Sprint 2 sign-off on Mar 31. Escalate to Mike Johnson — each day of delay risks Sprint 3 kickoff.
               </p>
               <p>
-                <strong>Blocker Analysis:</strong> PROJ-1248 blocked by QA environment for 2 days. Similar blockers 
-                historically add 3-4 days. Escalate to DevOps team immediately.
+                <strong>Refinement Alert:</strong> Sprint 3 starts Mar 31 with 6 unrefined stories across PROJ-1002 (Admin Dashboard).
+                Schedule a refinement session before Mar 25 to ensure the sprint can kick off on time.
               </p>
               <p>
-                <strong>Story Completion Forecast:</strong> Based on current progress, PROJ-1245 (OAuth2) will complete 
-                by March 9 (92% confidence). PROJ-1246 may slip by 1 day due to PR review time.
+                <strong>Story Forecast:</strong> PROJ-1246 (Stripe integration) in-review — expected to complete by Mar 13.
+                If PROJ-124 resolves by Mar 10, Sprint 2 is on track for sign-off. Sprint 4 stories remain on-hold pending delay resolution.
               </p>
             </div>
             <div className="mt-4 flex gap-3">

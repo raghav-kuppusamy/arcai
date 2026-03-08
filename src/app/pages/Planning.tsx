@@ -89,12 +89,12 @@ export function Planning() {
   const agentRunIdRef = useRef(0);
 
   const AGENT_STEP_CONFIG = [
-    { id: 's1', label: 'Loading project schedule and epic data',            detail: '4 epics · 3 milestones · 5 change requests loaded',                delay: 600  },
-    { id: 's2', label: 'Analysing epic velocity and completion forecasts',   detail: 'EPIC-001 at risk (78% delay probability) · EPIC-003 ahead of schedule', delay: 900  },
-    { id: 's3', label: 'Evaluating milestone dependencies and critical path', detail: 'Critical path: EPIC-001 → Release 2.5.0 → UAT sign-off',             delay: 800  },
-    { id: 's4', label: 'Assessing change request impact on timeline',        detail: 'CR-003 adds 8 days · CR-001, CR-002 within capacity',                delay: 700  },
-    { id: 's5', label: 'Optimising resource allocation across epics',        detail: 'Sarah Chen: 3 epics → 2 epics · estimated +25% delivery velocity',   delay: 1000 },
-    { id: 's6', label: 'Generating optimised schedule with risk buffers',    detail: '4 adjustments identified · 3 weeks saved vs current trajectory',    delay: 1100 },
+    { id: 's1', label: 'Loading project schedule and epic data',            detail: '5 epics · 5 milestones · 5 change requests loaded',                              delay: 600  },
+    { id: 's2', label: 'Analysing epic velocity and completion forecasts',   detail: 'PROJ-1001: 22% (Sprint 2 active) · PROJ-1003: on-hold (Sprint 4 delayed)',      delay: 900  },
+    { id: 's3', label: 'Evaluating milestone dependencies and critical path', detail: 'Critical path: Sprint 2 → Sprint 3 → Sprint 4 (delayed 2 wks) → v1.0 Release', delay: 800  },
+    { id: 's4', label: 'Assessing change request impact on timeline',        detail: 'CR-001 approved (5 days, Sprint 2) · CR-002 pending (3 days, Sprint 3 risk)',   delay: 700  },
+    { id: 's5', label: 'Optimising resource allocation across epics',        detail: 'Mike Johnson: Sprint 2 critical path · Sprint 4 resources available for reuse', delay: 1000 },
+    { id: 's6', label: 'Generating optimised schedule with risk buffers',    detail: '3 adjustments identified · 2 weeks recovered if Sprint 4 dependency resolved', delay: 1100 },
   ];
 
   const runOptimisation = async (runId: number) => {
@@ -113,18 +113,18 @@ export function Planning() {
     if (agentRunIdRef.current !== runId) return;
 
     setAgentPlan({
-      weeksSaved: 3,
-      milestonesAdjusted: 2,
+      weeksSaved: 2,
+      milestonesAdjusted: 1,
       actions: [
-        { type: 'defer',       item: 'CR-003',         reason: 'Adds 8 days to Release 2.5.0 with low business value — safe to defer', impact: 'Saves 8 days'            },
-        { type: 'consolidate', item: 'Sarah Chen',     reason: 'Allocated across 3 epics causing context switching — consolidate to 2', impact: '+25% delivery velocity' },
-        { type: 'reschedule',  item: 'Release 2.5.0',  reason: 'Add 5-day buffer before security audit based on code complexity trend',  impact: 'Reduces audit overrun risk' },
-        { type: 'fast-track',  item: 'EPIC-003',       reason: 'Payment Gateway 15 days ahead of schedule — pull forward UAT prep',    impact: 'Unlocks UAT 2 weeks early' },
+        { type: 'fast-track',  item: 'PROJ-124 (API Timeout)',    reason: 'Critical defect in Sprint 2 — pull in additional engineer to resolve by Mar 10', impact: 'Unblocks Sprint 2 sign-off'      },
+        { type: 'defer',       item: 'CR-002 (PayPal Gateway)',   reason: 'Adds 3 days to Sprint 3 with lower urgency than Stripe — safe to defer',         impact: 'Saves 3 days in Sprint 3'       },
+        { type: 'reschedule',  item: 'Sprint 3 kickoff buffer',   reason: 'Add 3-day overlap buffer for story handoff between Sprint 2 and Sprint 3',        impact: 'Reduces Sprint 3 planning risk'  },
+        { type: 'consolidate', item: 'Sprint 4 resource pool',    reason: 'PROJ-1003 on-hold — reassign Sarah Chen to Sprint 3 refinement and prep work',    impact: '+20% Sprint 3 delivery velocity' },
       ],
       recommendations: [
-        'Defer CR-003 to Release 2.6.0 — saves 8 days and keeps Release 2.5.0 on the current milestone date.',
-        'Consolidate Sarah Chen’s allocation to EPIC-001 and EPIC-002 only until Sprint 16 completes.',
-        'Insert a 5-day security remediation buffer before the Sprint 15 audit — complexity metrics suggest 4–6 medium findings.',
+        'Resolve PROJ-124 (API timeout) by Mar 10 — it is blocking Sprint 2 sign-off and cascades to Sprint 3 start date.',
+        'Schedule Sprint 3 refinement session before Mar 25 — all 6 PROJ-1002 stories are unrefined for the Mar 31 kickoff.',
+        'Defer CR-002 (PayPal Gateway) to Sprint 4 — protects Sprint 3 capacity and keeps the Admin Dashboard epic on schedule.',
       ],
     });
     setAgentPhase('done');
@@ -183,12 +183,12 @@ export function Planning() {
   const analysisRunIdRef = useRef(0);
 
   const ANALYSIS_STEP_CONFIG = [
-    { id: 'a1', label: 'Scanning epic progress and health indicators',    detail: 'EPIC-001: 45% vs 65% expected · EPIC-003: 15 days ahead',       delay: 600  },
-    { id: 'a2', label: 'Analysing milestone completion trends',            detail: 'Sprint 14 on track · Release 2.5.0 at risk (78% probability)',   delay: 800  },
-    { id: 'a3', label: 'Reviewing change request risk and impact',         detail: '3 pending CRs · CR-003 highest risk — 8 days timeline impact',   delay: 700  },
-    { id: 'a4', label: 'Evaluating quality gate readiness',                detail: '2 gates pending · Security audit due in 14 days',                delay: 600  },
-    { id: 'a5', label: 'Assessing team workload distribution',             detail: 'Sarah Chen over-allocated (3 epics) · David Kim at 65% capacity', delay: 900  },
-    { id: 'a6', label: 'Compiling detailed project health report',         detail: 'Overall health: Amber (67/100) · 3 critical risks identified',   delay: 1000 },
+    { id: 'a1', label: 'Scanning epic progress and health indicators',    detail: 'PROJ-1000: 100% done · PROJ-1001: 22% (Sprint 2) · PROJ-1003: on-hold (Sprint 4 delayed)', delay: 600  },
+    { id: 'a2', label: 'Analysing milestone completion trends',            detail: 'Sprint 2 active (28%, 23 days left) · Sprint 4 delayed 2 weeks · Sprint 3 unrefined', delay: 800  },
+    { id: 'a3', label: 'Reviewing change request risk and impact',         detail: '2 pending CRs · CR-002 (PayPal, 3 days) risks Sprint 3 timeline',               delay: 700  },
+    { id: 'a4', label: 'Evaluating quality gate readiness',                detail: 'Security audit in-progress (Sprint 2) · 4 quality gates pending downstream',     delay: 600  },
+    { id: 'a5', label: 'Assessing team workload distribution',             detail: 'Mike Johnson: Sprint 2 critical path · Sarah Chen available for Sprint 3 prep',  delay: 900  },
+    { id: 'a6', label: 'Compiling detailed project health report',         detail: 'Overall health: Amber (62/100) · 3 risks identified',                           delay: 1000 },
   ];
 
   const runAnalysis = async (runId: number) => {
@@ -207,47 +207,48 @@ export function Planning() {
     if (analysisRunIdRef.current !== runId) return;
 
     setAnalysisReport({
-      healthScore: 67,
+      healthScore: 62,
       healthLabel: 'Amber',
       indicators: [
-        { label: 'Epic Health',      value: '2 / 4 on track',           status: 'warning'  },
-        { label: 'Milestone Risk',   value: 'Release 2.5.0 at risk',    status: 'critical' },
-        { label: 'Change Control',   value: '3 pending CRs',            status: 'warning'  },
-        { label: 'Team Capacity',    value: 'Sarah over-allocated',     status: 'warning'  },
-        { label: 'Quality Gates',    value: '2 gates pending',          status: 'warning'  },
-        { label: 'Sprint Velocity',  value: '28 / 35 pts (80%)',        status: 'good'     },
+        { label: 'Epic Health',      value: '1 completed · 1 active',       status: 'good'     },
+        { label: 'Milestone Risk',   value: 'Sprint 4 delayed 2 weeks',     status: 'critical' },
+        { label: 'Change Control',   value: '2 pending CRs',                status: 'warning'  },
+        { label: 'Team Capacity',    value: 'Sprint 4 resources idle',      status: 'warning'  },
+        { label: 'Quality Gates',    value: '4 gates pending',              status: 'warning'  },
+        { label: 'Sprint Velocity',  value: 'Sprint 2 — 28% · 23 days left', status: 'warning'  },
       ],
       sections: [
         {
           title: 'Epic Progress',
           items: [
-            { label: 'EPIC-001: Customer Portal',       value: '45%', note: 'Behind — 65% expected by today'       },
-            { label: 'EPIC-002: API Gateway',           value: '72%', note: 'On track'                             },
-            { label: 'EPIC-003: Payment Integration',   value: '88%', note: 'Ahead of schedule by 15 days'         },
-            { label: 'EPIC-004: Mobile App',            value: '15%', note: 'Early stage — no risk yet'           },
+            { label: 'PROJ-1000: User Authentication',     value: '100%', note: 'Completed in Sprint 1 — signed off'          },
+            { label: 'PROJ-1001: Payment Gateway',         value: '22%',  note: 'Sprint 2 active — 1 done, 1 in-review'       },
+            { label: 'PROJ-1002: Admin Dashboard',         value: '0%',   note: 'Sprint 3 planning — starts Mar 31'           },
+            { label: 'PROJ-1003: Real-time Notifications', value: '0%',   note: 'On hold — Sprint 4 delayed to May 15'        },
+            { label: 'PROJ-1004: Data Export',             value: '0%',   note: 'Backlog — scoped for v1.0 Release (Jun)'    },
           ],
         },
         {
           title: 'Milestone Status',
           items: [
-            { label: 'Sprint 14  (Mar 15)',   value: 'Active',    note: '87% completion'                          },
-            { label: 'Release 2.5.0 (Apr 30)', value: 'At Risk',  note: 'EPIC-001 delay could push by 12 days'   },
-            { label: 'UAT Sign-off (May 10)', value: 'Pending',   note: 'Dependent on Release 2.5.0'             },
+            { label: 'Sprint 2  (Mar 31)',    value: 'Active',   note: '28% complete · critical defect in-progress' },
+            { label: 'Sprint 3  (Apr 29)',    value: 'Planning', note: '6 unrefined stories — refinement needed by Mar 25' },
+            { label: 'Sprint 4  (Jun 14)',    value: 'Delayed',  note: 'Pushed 2 weeks — May 1 → May 15'            },
           ],
         },
         {
           title: 'Change Request Impact',
           items: [
-            { label: 'CR-001: Dark Mode UI',          value: 'Approved', note: '3 days — within capacity'         },
-            { label: 'CR-002: GDPR Data Export',      value: 'Pending',  note: '5 days — low risk'               },
-            { label: 'CR-003: Real-time Sync Engine', value: 'Pending',  note: '8 days — recommend defer'         },
+            { label: 'CR-001: Extend Auth System',  value: 'Approved', note: '5 days — within Sprint 2 capacity'   },
+            { label: 'CR-002: Add PayPal Gateway',  value: 'Pending',  note: '3 days — recommend defer to Sprint 4' },
+            { label: 'CR-004: Email Notifications', value: 'Pending',  note: '4 days — Sprint 4 capacity at risk'  },
           ],
         },
       ],
       keyFindings: [
-        'EPIC-001 is 20% behind its velocity target — primary blocker for the Release 2.5.0 milestone.',
-        'CR-003 adds 8 days to the release with marginal business value — strong candidate for deferral.',
-        'Security audit (Sprint 15) has a high probability of surfacing 4–6 medium findings; remediation buffer is missing.',
+        'Sprint 4 delayed by 2 weeks (May 1 → May 15) — PROJ-1003 on-hold with 5 unassigned stories. Resource reallocation to Sprint 3 prep recommended.',
+        'PROJ-124 (API timeout critical defect) is in-progress in Sprint 2 — must be resolved before end-of-sprint sign-off on Mar 31.',
+        'Sprint 3 starts Mar 31 with 6 unrefined stories — a refinement session must be scheduled by Mar 25 to avoid a delayed kickoff.',
       ],
     });
     setAnalysisPhase('done');
@@ -302,20 +303,20 @@ export function Planning() {
             </h3>
             <div className="space-y-2 text-sm opacity-95">
               <p>
-                <strong>Epic Risk Alert:</strong> EPIC-001 (Customer Portal) is at 45% progress but only 21 days from target. 
-                AI predicts 78% chance of delay based on current velocity.
+                <strong>Sprint 2 Velocity Alert:</strong> Sprint 2 (Payment Gateway) is 28% complete with 23 days remaining.
+                1 story done, 1 in review, 1 in progress. Critical defect PROJ-124 (API timeout) must resolve before sign-off.
               </p>
               <p>
-                <strong>Change Request Impact:</strong> 3 pending change requests will add ~12 days to Release 2.5.0. 
-                Recommend deferring CR-003 to next release to maintain timeline.
+                <strong>Sprint 4 Delay Risk:</strong> Sprint 4 pushed 2 weeks (May 1 → May 15) due to Sprint 3 dependency.
+                PROJ-1003 (Real-time Notifications) is on hold — 5 stories unassigned. Early resource planning needed.
               </p>
               <p>
-                <strong>Quality Gate Prediction:</strong> Security audit for Sprint 15 likely to find 4-6 medium findings 
-                based on recent code complexity patterns. Allocate 3 extra days for remediation.
+                <strong>Sprint 3 Readiness:</strong> Sprint 3 starts Mar 31 with 6 unrefined stories across PROJ-1002.
+                Refinement session must be scheduled by Mar 25 to avoid a delayed kickoff.
               </p>
               <p>
-                <strong>Resource Optimization:</strong> Sarah Chen's allocation across 3 epics is causing context switching. 
-                Consolidate to 2 epics to improve delivery speed by 25%.
+                <strong>Change Request Impact:</strong> CR-002 (PayPal Gateway, 3 days) pending against Sprint 3 capacity.
+                Recommend deferring to Sprint 4 to protect the Sprint 3 timeline.
               </p>
             </div>
             <div className="mt-4 flex gap-3">
