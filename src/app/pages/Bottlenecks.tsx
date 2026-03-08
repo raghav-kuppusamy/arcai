@@ -13,13 +13,23 @@
  *
  * A cycle-time bar chart at the bottom shows where in the workflow time is lost.
  */
-import { AlertTriangle, TrendingUp, TrendingDown, Minus, Zap, Clock, ChevronRight, Calendar, GitPullRequest, Rocket, CheckSquare } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { AlertTriangle, TrendingUp, TrendingDown, Minus, Zap, Clock, ChevronRight, Calendar, GitPullRequest, Rocket, CheckSquare, Sparkles, Loader2, X, CheckCircle } from 'lucide-react';
 import { mockBottlenecks, cycleTimeData } from '../data/mockData';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 
 /**
  * Bottlenecks — phased bottleneck analysis with AI root-cause and recommendations.
  */
+type AgentStepStatus = 'pending' | 'running' | 'done';
+interface AgentStep { id: string; label: string; detail?: string; status: AgentStepStatus; }
+
+const AgentStepIcon = ({ status }: { status: AgentStepStatus }) => {
+  if (status === 'done')    return <CheckCircle className="size-5 text-green-500 flex-shrink-0 mt-0.5" />;
+  if (status === 'running') return <Loader2 className="size-5 text-orange-500 animate-spin flex-shrink-0 mt-0.5" />;
+  return <div className="size-5 rounded-full border-2 border-gray-300 flex-shrink-0 mt-0.5" />;
+};
+
 export function Bottlenecks() {
   /**
    * Returns Tailwind badge classes for a bottleneck severity level.
@@ -51,6 +61,86 @@ export function Bottlenecks() {
       default:
         return <Minus className="size-5 text-gray-600" />;
     }
+  };
+
+  // ─── Bottlenecks Intelligence Agent ────────────────────────────────────────
+  interface ActionItem { phase: string; action: string; effort: string; gain: string; owner: string; }
+  interface BottleneckPlan { headline: string; totalDelayDays: number; actions: ActionItem[]; }
+
+  const [agentOpen, setAgentOpen]   = useState(false);
+  const [agentPhase, setAgentPhase] = useState<'idle'|'running'|'done'>('idle');
+  const [agentSteps, setAgentSteps] = useState<AgentStep[]>([]);
+  const [agentPlan,  setAgentPlan]  = useState<BottleneckPlan | null>(null);
+  const [agentMode,  setAgentMode]  = useState<'analyse'|'fix'|'impact'>('analyse');
+  const agentRunIdRef = useRef(0);
+
+  const highCount   = mockBottlenecks.filter(b => b.severity === 'high').length;
+  const mediumCount = mockBottlenecks.filter(b => b.severity === 'medium').length;
+  const totalDelay  = mockBottlenecks.reduce((s, b) => s + b.avgDelay, 0);
+
+  const STEP_CONFIGS: Record<string, {id:string; label:string; detail:string; delay:number}[]> = {
+    analyse: [
+      { id:'b1', label:'Loading bottleneck data across all 4 pipeline phases',    detail:`${mockBottlenecks.length} bottlenecks detected · ${highCount} critical · ${mediumCount} medium`,                delay:600 },
+      { id:'b2', label:'Ranking by severity × cumulative delay impact',           detail:`Total pipeline delay: ${totalDelay} days · Backlog (8d) and Review (3.5d) dominate`,                         delay:800 },
+      { id:'b3', label:'Cross-referencing with active stories and open PRs',      detail:'PROJ-124 blocked · 3 PRs stale >3 days · Sprint 2 at 28% completion',                                        delay:700 },
+      { id:'b4', label:'Analysing trend direction for each bottleneck',           detail:'Planning ↑ increasing · Development ↑ increasing · Review → stable · Deployment → stable',               delay:600 },
+      { id:'b5', label:'Calculating lead time vs 10-day target',                  detail:'Current lead time: 17.5 days · Gap: 7.5 days · Sprint predictability: 76% vs 90% target',                delay:900 },
+      { id:'b6', label:'Generating prioritised remediation roadmap',              detail:'4 actions identified · Est. lead time reduction: 6–8 days · Effort: 1–2 sprints',                          delay:1000 },
+    ],
+    fix: [
+      { id:'b1', label:'Identifying quick-win vs long-term fixes',                detail:'2 quick-wins (<1 sprint) · 2 structural fixes (1–2 sprints)',                                               delay:600 },
+      { id:'b2', label:'Mapping fixes to specific Jira stories and PRs',          detail:'Story refinement gates → Planning · PR SLA policy → Review · PROJ-124 escalation → Development',        delay:700 },
+      { id:'b3', label:'Estimating effort and team capacity',                     detail:'Sprint 2 capacity: ~28 pts remaining · Quick-wins fit within current sprint',                             delay:800 },
+      { id:'b4', label:'Assigning owners per bottleneck phase',                   detail:'Raghavan: Planning gates · Sarah: PR review rotation · Mike: PROJ-124 fix · DevOps: UAT automation',    delay:700 },
+      { id:'b5', label:'Calculating velocity impact per fix',                     detail:'PR SLA fix alone: +18% delivery speed · Refinement gates: +60% planning efficiency',                     delay:900 },
+      { id:'b6', label:'Compiling phased fix plan with sprint targets',           detail:'Sprint 2: PR SLA + PROJ-124 · Sprint 3: Refinement gates + UAT automation',                             delay:1000 },
+    ],
+    impact: [
+      { id:'b1', label:'Modelling current delivery trajectory',                   detail:'Lead time: 17.5 days · Velocity: 28/35 pts · Predictability: 76%',                                         delay:600 },
+      { id:'b2', label:'Simulating delay if bottlenecks remain unresolved',       detail:'Planning bottleneck growing ↑ · Review stable but 3 PRs stale · Sprint 3 at risk',                      delay:800 },
+      { id:'b3', label:'Projecting sprint 3 impact on milestone delivery',        detail:'Sprint 3 goal at 65% risk of slipping · Release v1.2.0 may shift by 2+ weeks',                          delay:700 },
+      { id:'b4', label:'Calculating stakeholder impact',                          detail:'UAT window shrinks by 3 days · Stripe integration demo at risk · 2 epics delayed',                        delay:600 },
+      { id:'b5', label:'Estimating cost of inaction',                             detail:'Each additional day of lead time ≈ 0.5 story points lost per sprint',                                     delay:900 },
+      { id:'b6', label:'Generating risk-adjusted timeline forecast',              detail:'Without action: v1.2.0 slips to Apr 18 · With fixes: on-track Apr 4 release',                           delay:1000 },
+    ],
+  };
+
+  const runAgent = async (runId: number, mode: 'analyse'|'fix'|'impact') => {
+    const sleep = (ms: number) => new Promise<void>(res => setTimeout(res, ms));
+    const steps = STEP_CONFIGS[mode];
+    setAgentPhase('running');
+    setAgentSteps(steps.map(s => ({ id: s.id, label: s.label, status: 'pending' as AgentStepStatus })));
+    for (const step of steps) {
+      if (agentRunIdRef.current !== runId) return;
+      setAgentSteps(prev => prev.map(s => s.id === step.id ? { ...s, status: 'running' } : s));
+      await sleep(step.delay);
+      if (agentRunIdRef.current !== runId) return;
+      setAgentSteps(prev => prev.map(s => s.id === step.id ? { ...s, status: 'done', detail: step.detail } : s));
+    }
+    if (agentRunIdRef.current !== runId) return;
+    setAgentPlan({
+      headline: mode === 'impact'
+        ? 'Without action, v1.2.0 will slip by 2+ weeks. Resolve planning and review bottlenecks in Sprint 2 to stay on track for Apr 4 release.'
+        : 'Backlog refinement and PR review delays account for 11.5 of the 17.5-day lead time. Fixing these two bottlenecks alone reduces lead time to under 10 days within 2 sprints.',
+      totalDelayDays: totalDelay,
+      actions: [
+        { phase:'Planning',    action:'Implement Definition of Ready gates — block unrefined stories from sprint intake',  effort:'1 day',   gain:'−5 days lead time',   owner:'Raghavan K.'  },
+        { phase:'Code Review', action:'Set 24-hour PR review SLA with GitHub Actions reminders + round-robin assignment',  effort:'2 hours', gain:'−2.5 days lead time', owner:'Sarah Chen'   },
+        { phase:'Development', action:'Escalate PROJ-124 API timeout fix — assign dedicated pair-programming session',     effort:'1 sprint', gain:'Unblocks QA gate',   owner:'Mike Johnson' },
+        { phase:'Deployment',  action:'Automate UAT deployment trigger via CI/CD pipeline — remove manual step',           effort:'1 sprint', gain:'−1 day lead time',    owner:'DevOps team'  },
+      ],
+    });
+    setAgentPhase('done');
+  };
+
+  const openAgent = (mode: 'analyse'|'fix'|'impact') => {
+    const runId = ++agentRunIdRef.current;
+    setAgentMode(mode);
+    setAgentOpen(true);
+    setAgentPhase('idle');
+    setAgentSteps([]);
+    setAgentPlan(null);
+    setTimeout(() => { runAgent(runId, mode); }, 400);
   };
 
   // Index bottlenecks by SDLC phase for easy lookup in the phase loop below
@@ -117,11 +207,56 @@ export function Bottlenecks() {
   ];
 
   return (
+    <>
     <div className="space-y-6">
       {/* Header */}
       <div>
         <h2 className="text-2xl font-semibold text-gray-900">Bottleneck Analysis</h2>
         <p className="text-gray-600 mt-1">AI-detected performance issues across your delivery pipeline</p>
+      </div>
+
+      {/* Bottlenecks Intelligence Banner */}
+      <div className="bg-[#163A5F] rounded-lg p-6 text-white">
+        <div className="flex-1">
+          <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
+            <Sparkles className="size-5" />
+            Bottlenecks Intelligence
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm opacity-95 mb-4">
+            <div>
+              <p className="font-semibold mb-1">🚨 Pipeline Health</p>
+              <ul className="space-y-1">
+                <li>• {highCount} critical bottlenecks · {mediumCount} medium severity</li>
+                <li>• Lead time: <strong>17.5 days</strong> vs 10-day target (75% over)</li>
+                <li>• Sprint predictability: <strong>76%</strong> vs 90%+ target</li>
+                <li>• Backlog (+8d) and Review (+3.5d) are the primary blockers</li>
+              </ul>
+            </div>
+            <div>
+              <p className="font-semibold mb-1">⚡ Top Recommendations</p>
+              <ul className="space-y-1">
+                <li>• Add Definition of Ready gates to cut planning delays by 60%</li>
+                <li>• Set 24hr PR review SLA — reduce review time from 3.5d to &lt;1d</li>
+                <li>• Escalate PROJ-124 to unblock QA promotion pipeline</li>
+                <li>• Automate UAT trigger to eliminate 1-day manual gate</li>
+              </ul>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <button onClick={() => openAgent('analyse')}
+              className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded text-sm font-medium transition-colors flex items-center gap-2">
+              <Zap className="size-4" /> Analyse Bottlenecks
+            </button>
+            <button onClick={() => openAgent('fix')}
+              className="bg-white text-[#163A5F] hover:bg-gray-100 px-4 py-2 rounded text-sm font-medium transition-colors flex items-center gap-2">
+              <ChevronRight className="size-4" /> Generate Fix Plan
+            </button>
+            <button onClick={() => openAgent('impact')}
+              className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded text-sm font-medium transition-colors flex items-center gap-2">
+              <Clock className="size-4" /> Predict Delay Impact
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Summary Alert */}
@@ -350,7 +485,7 @@ export function Bottlenecks() {
           </div>
         </div>
         <ResponsiveContainer width="100%" height={350}>
-          <BarChart data={cycleTimeData} layout="horizontal">
+          <BarChart data={cycleTimeData} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis type="number" tick={{ fontSize: 12 }} label={{ value: 'Average Days', position: 'insideBottom', offset: -5 }} />
             <YAxis type="category" dataKey="stage" tick={{ fontSize: 12 }} width={100} />
@@ -390,5 +525,79 @@ export function Bottlenecks() {
         </div>
       </div>
     </div>
+
+      {/* ── Bottlenecks Agent Modal ───────────────────────────────────────── */}
+      {agentOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => agentPhase !== 'running' && setAgentOpen(false)} />
+          <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between px-6 py-4 bg-[#163A5F]">
+              <div className="flex items-center gap-3 text-white">
+                <Zap className="size-5" />
+                <h2 className="font-semibold text-lg">
+                  {agentMode === 'analyse' ? 'AI Bottleneck Analysis Agent' : agentMode === 'fix' ? 'AI Fix Plan Agent' : 'AI Delay Impact Agent'}
+                </h2>
+              </div>
+              {agentPhase !== 'running' && (
+                <button onClick={() => setAgentOpen(false)} className="text-white/70 hover:text-white transition-colors">
+                  <X className="size-5" />
+                </button>
+              )}
+            </div>
+
+            <div className="overflow-y-auto flex-1 p-6 space-y-6">
+              <div className="space-y-3">
+                {agentSteps.map(step => (
+                  <div key={step.id} className="flex items-start gap-3">
+                    <AgentStepIcon status={step.status} />
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-medium ${step.status === 'pending' ? 'text-gray-400' : 'text-gray-900'}`}>{step.label}</p>
+                      {step.detail && <p className="text-xs text-gray-500 mt-0.5">{step.detail}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {agentPlan && (
+                <div className="space-y-5 border-t border-gray-200 pt-5">
+                  <div className="p-4 rounded-lg bg-orange-50 border border-orange-200">
+                    <p className="text-sm text-orange-900">{agentPlan.headline}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-3">Prioritised Actions</h4>
+                    <div className="space-y-2">
+                      {agentPlan.actions.map((a, i) => (
+                        <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 transition-colors">
+                          <span className="size-6 rounded-full bg-[#163A5F] text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
+                          <div className="flex-1 min-w-0">
+                            <span className="text-xs font-semibold text-orange-700 uppercase tracking-wide">{a.phase}</span>
+                            <p className="text-sm text-gray-900 mt-0.5">{a.action}</p>
+                            <p className="text-xs text-gray-500 mt-0.5">Owner: {a.owner}</p>
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <p className="text-xs font-medium text-gray-700">{a.effort}</p>
+                            <p className="text-xs text-green-700 mt-0.5">{a.gain}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {agentPhase === 'done' && (
+              <div className="px-6 py-4 border-t border-gray-200 flex justify-between items-center bg-gray-50">
+                <p className="text-xs text-gray-500">{agentPlan?.actions.length} actions · est. lead time reduction: 6–8 days</p>
+                <button onClick={() => setAgentOpen(false)}
+                  className="bg-[#163A5F] text-white px-4 py-2 rounded text-sm font-medium hover:bg-[#0d2a47] transition-colors flex items-center gap-2">
+                  Done <ChevronRight className="size-4" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </>
   );
 }
