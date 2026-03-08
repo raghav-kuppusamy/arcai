@@ -1,0 +1,192 @@
+/**
+ * Layout.tsx — Application Shell
+ *
+ * This is the persistent chrome that wraps every page in Arc AI.
+ * It renders:
+ *   - A sticky top header with the Arc AI logo
+ *   - A desktop sidebar with full navigation
+ *   - A slide-in mobile menu (hidden on lg+ screens)
+ *   - A <main> content area where child pages are injected
+ *
+ * Navigation items are defined in a single config array so adding
+ * a new page only requires one change here and a new route in routes.tsx.
+ */
+import { Link, useLocation } from 'react-router';
+import {
+  LayoutDashboard,
+  List,
+  AlertTriangle,
+  Lightbulb,
+  Activity,
+  Menu,
+  X,
+  CheckSquare,
+  GitPullRequest,
+  Rocket,
+  Calendar,
+  Settings,
+  Shield
+} from 'lucide-react';
+import { useState } from 'react';
+import { ArcLogo } from './ArcLogo';
+
+interface LayoutProps {
+  children: React.ReactNode;
+}
+
+/**
+ * Layout — wraps every page with the header, sidebar, and main content area.
+ * The `children` prop is the page component rendered at the current route.
+ */
+export function Layout({ children }: LayoutProps) {
+  const location = useLocation();
+
+  // Controls the slide-in mobile navigation drawer
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Single source of truth for sidebar navigation.
+  // The active item is highlighted by comparing item.path to the current URL.
+  const navigation = [
+    { name: 'Dashboard', path: '/', icon: LayoutDashboard },
+    { name: 'Planning', path: '/planning', icon: Calendar },
+    { name: 'Jira Stories', path: '/stories', icon: CheckSquare },
+    { name: 'GitHub PRs', path: '/pullrequests', icon: GitPullRequest },
+    { name: 'Deployments', path: '/deployments', icon: Rocket },
+    { name: 'Guardrails', path: '/guardrails', icon: Shield },
+    { name: 'Bottlenecks', path: '/bottlenecks', icon: AlertTriangle },
+    { name: 'Preferences', path: '/preferences', icon: Settings },
+  ];
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* ── Sticky header: always visible regardless of scroll position ── */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+        <div className="px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="relative">
+                <ArcLogo className="size-11 transition-transform group-hover:scale-105" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+                    Arc
+                  </h1>
+                  <span className="px-2 py-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs font-semibold rounded-full">
+                    AI
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 font-medium">Project Intelligence Platform</p>
+              </div>
+            </Link>
+            
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100"
+            >
+              {mobileMenuOpen ? <X className="size-6" /> : <Menu className="size-6" />}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex">
+        {/* ── Desktop sidebar: hidden on mobile, always shown on lg+ ── */}
+        <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-4rem)]">
+          <nav className="flex-1 p-4 space-y-1">
+            {navigation.map((item) => {
+              const Icon = item.icon;
+              // Exact-match active state — avoids '/stories' also lighting up '/'
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    isActive
+                      ? 'bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 shadow-sm'
+                      : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <Icon className="size-5" />
+                  <span className="font-medium">{item.name}</span>
+                </Link>
+              );
+            })}
+          </nav>
+          
+          {/* ── Sidebar footer: AI Intelligence badge ── */}
+          <div className="p-4 border-t border-gray-200">
+            <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-600 rounded-xl p-5 text-white">
+              {/* Decorative blurred circles for depth — purely cosmetic */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute top-0 left-0 size-20 bg-white rounded-full -translate-x-1/2 -translate-y-1/2" />
+                <div className="absolute bottom-0 right-0 size-16 bg-white rounded-full translate-x-1/2 translate-y-1/2" />
+              </div>
+              
+              <div className="relative">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="size-8 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                    <Activity className="size-4" />
+                  </div>
+                  <span className="font-bold text-sm">AI Intelligence</span>
+                </div>
+                <p className="text-xs opacity-90 leading-relaxed">
+                  Powered by advanced analytics across Jira, GitHub, and CI/CD pipelines
+                </p>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        {/* ── Mobile slide-in drawer ── */}
+        {/* The outer overlay closes the menu on backdrop tap.
+            stopPropagation on the aside prevents the tap from bubbling up. */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden fixed inset-0 z-50 bg-black/50" onClick={() => setMobileMenuOpen(false)}>
+            <aside className="w-64 bg-white h-full" onClick={(e) => e.stopPropagation()}>
+              <div className="p-4 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ArcLogo className="size-8" />
+                    <h2 className="text-lg font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Arc</h2>
+                  </div>
+                  <button onClick={() => setMobileMenuOpen(false)} className="p-1">
+                    <X className="size-5" />
+                  </button>
+                </div>
+              </div>
+              <nav className="p-4 space-y-1">
+                {navigation.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = location.pathname === item.path;
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                        isActive
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Icon className="size-5" />
+                      <span className="font-medium">{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+            </aside>
+          </div>
+        )}
+
+        {/* ── Page content area: the active route component renders here ── */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}
