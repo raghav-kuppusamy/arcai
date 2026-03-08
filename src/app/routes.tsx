@@ -19,6 +19,8 @@
  */
 import { createBrowserRouter } from "react-router";
 import { Layout } from "./components/Layout";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { LoginPage } from "./pages/LoginPage";
 import { Dashboard } from "./pages/Dashboard";
 import { Planning } from "./pages/Planning";
 import { Stories } from "./pages/Stories";
@@ -30,57 +32,70 @@ import { Recommendations } from "./pages/Recommendations";
 import { Preferences } from "./pages/Preferences";
 import { NotFound } from "./pages/NotFound";
 
+function Protected({ children }: { children: React.ReactNode }) {
+  return (
+    <ProtectedRoute>
+      <Layout>{children}</Layout>
+    </ProtectedRoute>
+  );
+}
+
 /**
  * The browser router instance consumed by <RouterProvider> in App.tsx.
- * Every route is wrapped with <Layout> so the sidebar and header are
- * always present — only the inner page content changes on navigation.
+ * Every route (except /login) is wrapped with ProtectedRoute + Layout.
  */
 export const router = createBrowserRouter([
+  // ─── Public ──────────────────────────────────────────────────────────────
+  {
+    path: "/login",
+    element: <LoginPage />,
+  },
+
   // ─── Primary navigation ──────────────────────────────────────────────────
   {
     path: "/",
-    element: <Layout><Dashboard /></Layout>,
+    element: <Protected><Dashboard /></Protected>,
   },
   {
     path: "/planning",
-    element: <Layout><Planning /></Layout>,
+    element: <Protected><Planning /></Protected>,
   },
   {
     path: "/stories",
-    element: <Layout><Stories /></Layout>,
+    element: <Protected><Stories /></Protected>,
   },
   {
     path: "/pullrequests",
-    element: <Layout><PullRequests /></Layout>,
+    element: <Protected><PullRequests /></Protected>,
   },
   {
     path: "/deployments",
-    element: <Layout><Deployments /></Layout>,
+    element: <Protected><Deployments /></Protected>,
   },
 
   // ─── Insights & quality ───────────────────────────────────────────────────
   {
     path: "/guardrails",
-    element: <Layout><Guardrails /></Layout>,
+    element: <Protected><Guardrails /></Protected>,
   },
   {
     path: "/bottlenecks",
-    element: <Layout><Bottlenecks /></Layout>,
+    element: <Protected><Bottlenecks /></Protected>,
   },
   {
     path: "/recommendations",
-    element: <Layout><Recommendations /></Layout>,
+    element: <Protected><Recommendations /></Protected>,
   },
 
   // ─── Settings ────────────────────────────────────────────────────────────
   {
     path: "/preferences",
-    element: <Layout><Preferences /></Layout>,
+    element: <Protected><Preferences /></Protected>,
   },
 
   // ─── Fallback — must stay last ────────────────────────────────────────────
   {
     path: "*",
-    element: <Layout><NotFound /></Layout>,
+    element: <Protected><NotFound /></Protected>,
   },
 ]);

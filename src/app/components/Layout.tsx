@@ -11,7 +11,7 @@
  * Navigation items are defined in a single config array so adding
  * a new page only requires one change here and a new route in routes.tsx.
  */
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import {
   LayoutDashboard,
   List,
@@ -25,10 +25,12 @@ import {
   Rocket,
   Calendar,
   Settings,
-  Shield
+  Shield,
+  LogOut,
 } from 'lucide-react';
 import { useState } from 'react';
 import { ArcLogo } from './ArcLogo';
+import { useAuth } from '../context/AuthContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -39,7 +41,14 @@ interface LayoutProps {
  * The `children` prop is the page component rendered at the current route.
  */
 export function Layout({ children }: LayoutProps) {
-  const location = useLocation();
+  const location    = useLocation();
+  const navigate    = useNavigate();
+  const { user, logout } = useAuth();
+
+  function handleLogout() {
+    logout();
+    navigate('/login', { replace: true });
+  }
 
   // Controls the slide-in mobile navigation drawer
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -80,13 +89,37 @@ export function Layout({ children }: LayoutProps) {
               </div>
             </Link>
             
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100"
-            >
-              {mobileMenuOpen ? <X className="size-6" /> : <Menu className="size-6" />}
-            </button>
+            {/* Right side: user info + logout (desktop) + mobile menu trigger */}
+            <div className="flex items-center gap-3">
+
+              {/* Desktop user pill */}
+              {user && (
+                <div className="hidden lg:flex items-center gap-3">
+                  <div className="text-right">
+                    <p className="text-sm font-semibold text-[#163A5F] leading-tight">{user.name}</p>
+                    <p className="text-xs text-gray-400 leading-tight">{user.role}</p>
+                  </div>
+                  <div className="size-9 rounded-full bg-[#163A5F] text-white text-sm font-bold flex items-center justify-center flex-shrink-0">
+                    {user.initials}
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    title="Sign out"
+                    className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                  >
+                    <LogOut className="size-4" />
+                  </button>
+                </div>
+              )}
+
+              {/* Mobile menu button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100"
+              >
+                {mobileMenuOpen ? <X className="size-6" /> : <Menu className="size-6" />}
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -178,6 +211,28 @@ export function Layout({ children }: LayoutProps) {
                   );
                 })}
               </nav>
+
+              {/* Mobile user + logout */}
+              {user && (
+                <div className="border-t border-[#D2D2D7] p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="size-9 rounded-full bg-[#163A5F] text-white text-sm font-bold flex items-center justify-center flex-shrink-0">
+                      {user.initials}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-[#163A5F] truncate">{user.name}</p>
+                      <p className="text-xs text-gray-400 truncate">{user.role}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => { setMobileMenuOpen(false); handleLogout(); }}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    <LogOut className="size-4" />
+                    Sign out
+                  </button>
+                </div>
+              )}
             </aside>
           </div>
         )}

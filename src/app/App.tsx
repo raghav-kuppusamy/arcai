@@ -9,11 +9,16 @@
  */
 import { RouterProvider } from 'react-router';
 import { router } from './routes.tsx';
+import { AuthProvider } from './context/AuthContext';
 
 /**
- * App — renders the router and nothing else.
- * Adding global providers (auth context, theme, query client) here in future.
+ * App — renders the router wrapped in AuthProvider.
+ * AuthProvider must sit above RouterProvider so every route can call useAuth().
  */
 export default function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  );
 }
