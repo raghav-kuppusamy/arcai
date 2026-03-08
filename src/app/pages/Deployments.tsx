@@ -290,29 +290,24 @@ export function Deployments() {
             </h3>
             <div className="space-y-2 text-sm opacity-95">
               <p>
-                <strong>Deployment Success Prediction:</strong> Next production deployment has 95% success probability 
-                based on historical patterns. All quality gates passed. Optimal deployment window: Thursday 10am-2pm 
-                (lowest traffic period, 23% fewer incidents).
+                <strong>Next Production Deployment Risk:</strong> Production is on v1.1.0 (Sprint 1 — auth complete).
+                v1.1.1 promotion to prod is blocked until PROJ-124 (API timeout critical defect) is resolved and the
+                Stripe integration (PROJ-1246) passes UAT sign-off. Estimated earliest prod window: Mar 14–16.
               </p>
               <p>
-                <strong>Pipeline Performance Analysis:</strong> Average deployment time across environments: DEV 4min, 
-                QA 5min, UAT 6min, PROD 8min. UAT showing 20% slower trend this week due to manual approval delays. 
-                Recommend automated approval gates for non-critical changes.
+                <strong>Pipeline Status:</strong> Dev build v1.1.2-snapshot is <strong>in-progress</strong> — PROJ-124 fix pipeline still running,
+                2 AI review issues flagged (retry backoff, hardcoded timeout). QA build v1.1.1-rc has PROJ-1246 (Stripe) deployed and
+                PR approved — ready for UAT promotion once QA sign-off is received. UAT currently holds only the PROJ-1250 DB fix.
               </p>
               <p>
-                <strong>Risk Assessment & Recommendations:</strong> v2.5.0 includes database schema changes. AI analyzed 
-                47 similar deployments - 12% rollback rate detected. High-risk factors: Migration scripts (3), Breaking API 
-                changes (2). Recommendation: Deploy to UAT first, run automated regression suite, schedule staged rollout 
-                with 25% traffic increments.
+                <strong>Promotion Readiness:</strong> QA → UAT: PROJ-1246 (Stripe) is approved and QA pipeline succeeded —
+                promote once QA team confirms test pass. DEV → QA: blocked on PROJ-124 AI review resolution.
+                Resolve exponential backoff issue in <code>src/payment/api-client.ts</code> before next QA build trigger.
               </p>
               <p>
-                <strong>Environment Health Monitoring:</strong> QA environment has 3x more deployments than UAT this week. 
-                Detected: 5 stable builds ready for UAT promotion. Production uptime: 99.97% (target: 99.95%). Last incident: 
-                6 days ago (auto-resolved via rollback in 4 minutes).
-              </p>
-              <p>
-                <strong>Deployment Frequency & Lead Time:</strong> Current deployment frequency: 4.2 deployments/day (↑15% vs last month). 
-                Lead time from commit to production: 2.3 days average (↓18% improvement). Top bottleneck: Code review stage (avg 18 hours).
+                <strong>Environment Health & Lead Time:</strong> Pipeline durations — DEV 3 min · QA 5 min · UAT 5 min · PROD 8 min.
+                Lead time for Sprint 2 Stripe feature (commit → QA): 4 days. PROJ-124 fix at day 2 in-progress.
+                Production uptime: 99.97% since v1.1.0 deployed Feb 28. No rollbacks recorded.
               </p>
             </div>
             <div className="mt-4 flex gap-3 flex-wrap">

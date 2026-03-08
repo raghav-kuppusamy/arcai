@@ -247,6 +247,15 @@ export function Stories() {
       return sortDir === 'asc' ? cmp : -cmp;
     });
 
+  // Kanban column expand/collapse — default all collapsed
+  const [expandedCols, setExpandedCols] = useState<Set<string>>(new Set());
+  const toggleCol = (col: string) =>
+    setExpandedCols(prev => {
+      const next = new Set(prev);
+      next.has(col) ? next.delete(col) : next.add(col);
+      return next;
+    });
+
   // Pre-group stories by status for kanban columns, using the already-filtered
   // displayedStories so the board stays consistent with the active filters.
   const storyGroups = {
@@ -347,7 +356,7 @@ export function Stories() {
             <p className="text-sm text-gray-600 capitalize">{status.replace('-', ' ')}</p>
             <p className="text-3xl font-semibold text-gray-900 mt-1">{stories.length}</p>
             <p className="text-xs text-gray-500 mt-1">
-              {stories.reduce((sum, s) => sum + s.storyPoints, 0)} points
+              {stories.reduce((sum: number, s) => sum + s.storyPoints, 0)} points
             </p>
           </div>
         ))}
@@ -355,16 +364,29 @@ export function Stories() {
 
       {/* Stories Kanban View */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-        {Object.entries(storyGroups).map(([status, stories]) => (
-          <div key={status} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-900 capitalize">{status.replace('-', ' ')}</h3>
-              <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
-                {stories.length}
-              </span>
-            </div>
-            
-            <div className="space-y-3">
+        {Object.entries(storyGroups).map(([status, stories]) => {
+          const isExpanded = expandedCols.has(status);
+          return (
+          <div key={status} className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
+            <button
+              onClick={() => toggleCol(status)}
+              className="w-full flex items-center justify-between p-4 hover:bg-gray-100 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-gray-900 capitalize">{status.replace('-', ' ')}</h3>
+                <span className="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs font-medium">
+                  {stories.length}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <span>{stories.reduce((s, st) => s + st.storyPoints, 0)} pts</span>
+                {isExpanded
+                  ? <ChevronUp className="size-4 text-gray-500" />
+                  : <ChevronDown className="size-4 text-gray-500" />}
+              </div>
+            </button>
+
+            {isExpanded && <div className="px-4 pb-4 space-y-3">
               {stories.map(story => (
                 <div key={story.id} className="bg-white rounded-lg border border-gray-200 p-3 hover:shadow-md transition-shadow">
                   {/* Story Header */}
@@ -419,9 +441,10 @@ export function Stories() {
                   No stories
                 </div>
               )}
-            </div>
+            </div>}
           </div>
-        ))}
+        );
+        })}
       </div>
 
       {/* Story Details Table */}

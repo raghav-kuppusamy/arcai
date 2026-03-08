@@ -11,12 +11,22 @@
  * The AI Guardrails Intelligence banner synthesises findings across all tools
  * to produce a unified risk score and actionable remediation advice.
  */
-import { Shield, AlertTriangle, CheckCircle, XCircle, Clock, AlertCircle as AlertCircleIcon, FileCode, Bug, Lock, TestTube, Sparkles } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Shield, AlertTriangle, CheckCircle, XCircle, Clock, AlertCircle as AlertCircleIcon, FileCode, Bug, Lock, TestTube, Sparkles, Loader2, X, ChevronRight } from 'lucide-react';
 import { mockESLintReport, mockSonarQubeAnalysis, mockFortifyScan, mockUnitTestExecution, mockSecurityScans } from '../data/mockData';
 
 /**
  * Guardrails — unified quality and security gate dashboard.
  */
+type AgentStepStatus = 'pending' | 'running' | 'done';
+interface AgentStep { id: string; label: string; detail?: string; status: AgentStepStatus; }
+
+const AgentStepIcon = ({ status }: { status: AgentStepStatus }) => {
+  if (status === 'done')    return <CheckCircle className="size-5 text-green-500 flex-shrink-0 mt-0.5" />;
+  if (status === 'running') return <Loader2 className="size-5 text-purple-500 animate-spin flex-shrink-0 mt-0.5" />;
+  return <div className="size-5 rounded-full border-2 border-gray-300 flex-shrink-0 mt-0.5" />;
+};
+
 export function Guardrails() {
   // ─── Derive top-level pass/fail/warning status for each tool ────────────────
   // ESLint: 0 errors = passed, 1-5 errors = warning, 6+ = failed
@@ -27,6 +37,103 @@ export function Guardrails() {
   const testStatus      = mockUnitTestExecution.status;
   // Use the secrets scan as the representative security scan status
   const securityStatus  = mockSecurityScans.find(s => s.scanType === 'secrets')?.status || 'warning';
+
+  // ─── AI Guardrails Analysis Agent ───────────────────────────────────────────
+  interface RemediationAction {
+    priority: 'critical' | 'high' | 'medium';
+    tool: string;
+    action: string;
+    file?: string;
+    effort: string;
+    impact: string;
+  }
+  interface RemediationPlan {
+    riskScore: number;
+    riskLabel: 'Critical' | 'High' | 'Medium' | 'Low';
+    blocksDeployment: boolean;
+    actions: RemediationAction[];
+    summary: string;
+  }
+
+  const [agentOpen, setAgentOpen]     = useState(false);
+  const [agentPhase, setAgentPhase]   = useState<'idle' | 'running' | 'done'>('idle');
+  const [agentSteps, setAgentSteps]   = useState<AgentStep[]>([]);
+  const [agentPlan, setAgentPlan]     = useState<RemediationPlan | null>(null);
+  const [agentMode, setAgentMode]     = useState<'audit' | 'fix' | 'compliance'>('audit');
+  const agentRunIdRef = useRef(0);
+
+  const STEP_CONFIGS: Record<string, { id: string; label: string; detail: string; delay: number }[]> = {
+    audit: [
+      { id: 'g1', label: 'Loading guardrail tool results',              detail: `ESLint ${mockESLintReport.errors} errors · SonarQube ${sonarQubeStatus} · Fortify ${mockFortifyScan.critical} critical`, delay: 600 },
+      { id: 'g2', label: 'Scanning Fortify SAST findings',              detail: `${mockFortifyScan.critical} critical · ${mockFortifyScan.high} high · SQL Injection & XSS detected`,            delay: 800 },
+      { id: 'g3', label: 'Analysing ESLint and SonarQube violations',   detail: `${mockESLintReport.errors} build-blocking errors · ${mockSonarQubeAnalysis.bugs} bugs · coverage ${mockUnitTestExecution.overallCoverage}%`, delay: 700 },
+      { id: 'g4', label: 'Checking secrets and dependency scans',        detail: `${mockSecurityScans.find(s => s.scanType === 'secrets')?.critical ?? 0} hardcoded secrets · ${mockSecurityScans.find(s => s.scanType === 'dependencies')?.critical ?? 0} critical CVEs`, delay: 600 },
+      { id: 'g5', label: 'Cross-referencing with open PRs & stories',   detail: 'PROJ-124 (API timeout) open PR · payment/api-client.ts flagged in both Fortify and AI review', delay: 900 },
+      { id: 'g6', label: 'Generating prioritised remediation plan',      detail: `Risk score: ${mockFortifyScan.critical > 0 ? 78 : 45}/100 · ${mockFortifyScan.critical + mockESLintReport.errors} items block next deployment`, delay: 1000 },
+    ],
+    fix: [
+      { id: 'g1', label: 'Parsing all tool findings for auto-fix candidates', detail: 'ESLint fixable issues identified · SonarQube code smells reviewed',                     delay: 600 },
+      { id: 'g2', label: 'Identifying ESLint auto-fixable rules',             detail: `${mockESLintReport.fixableIssues} issues can be auto-fixed via eslint --fix`, delay: 700 },
+      { id: 'g3', label: 'Mapping Fortify findings to code locations',         detail: 'SQL Injection: src/payment/api-client.ts:83 · XSS: src/dashboard/render.ts:41',       delay: 800 },
+      { id: 'g4', label: 'Generating targeted code fix suggestions',           detail: 'Parameterised queries for SQL · Output encoding for XSS · Env vars for secrets',      delay: 900 },
+      { id: 'g5', label: 'Estimating remediation effort per finding',          detail: 'Critical fixes: ~3 days · High fixes: ~2 days · Auto-fixable: <1 hour',             delay: 700 },
+      { id: 'g6', label: 'Compiling fix plan with owner assignments',          detail: 'Mike Johnson: payment issues · Alex Kumar: ESLint · Sarah Chen: test coverage',      delay: 1000 },
+    ],
+    compliance: [
+      { id: 'g1', label: 'Loading compliance policy baselines',               detail: 'OWASP Top 10 · SAST policy · 80% coverage threshold · Zero critical CVEs policy',    delay: 600 },
+      { id: 'g2', label: 'Checking OWASP Top 10 compliance',                  detail: `A03 Injection: FAIL · A07 Auth Failures: PASS · A06 Vulnerable Components: FAIL`,  delay: 800 },
+      { id: 'g3', label: 'Evaluating deployment gate requirements',            detail: `${mockFortifyScan.critical} critical findings · quality gate: ${sonarQubeStatus} · ${mockUnitTestExecution.failed} tests failing`, delay: 700 },
+      { id: 'g4', label: 'Assessing test coverage against 80% threshold',     detail: `Current: ${mockUnitTestExecution.overallCoverage}% · Gap: ${Math.max(0, 80 - mockUnitTestExecution.overallCoverage)}% · ${mockUnitTestExecution.failed} failing tests`, delay: 600 },
+      { id: 'g5', label: 'Checking secrets and licence compliance',            detail: 'Hardcoded secrets detected in 2 files · GPL licence conflict identified in 1 dependency', delay: 900 },
+      { id: 'g6', label: 'Producing compliance status report',                 detail: `Compliance score: ${mockFortifyScan.critical > 0 ? 61 : 82}/100 · ${mockFortifyScan.critical > 0 ? 3 : 1} policies failing`, delay: 1000 },
+    ],
+  };
+
+  const runAgent = async (runId: number, mode: 'audit' | 'fix' | 'compliance') => {
+    const sleep = (ms: number) => new Promise<void>(res => setTimeout(res, ms));
+    const steps = STEP_CONFIGS[mode];
+    setAgentPhase('running');
+    setAgentSteps(steps.map(s => ({ id: s.id, label: s.label, status: 'pending' as AgentStepStatus })));
+    for (const step of steps) {
+      if (agentRunIdRef.current !== runId) return;
+      setAgentSteps(prev => prev.map(s => s.id === step.id ? { ...s, status: 'running' } : s));
+      await sleep(step.delay);
+      if (agentRunIdRef.current !== runId) return;
+      setAgentSteps(prev => prev.map(s => s.id === step.id ? { ...s, status: 'done', detail: step.detail } : s));
+    }
+    if (agentRunIdRef.current !== runId) return;
+    setAgentPlan({
+      riskScore: 78,
+      riskLabel: 'High',
+      blocksDeployment: true,
+      actions: [
+        { priority: 'critical', tool: 'Fortify',   action: 'Fix SQL Injection in payment API client — use parameterised queries',          file: 'src/payment/api-client.ts:83',      effort: '1 day',   impact: 'Unblocks deployment gate'     },
+        { priority: 'critical', tool: 'Secrets',   action: 'Remove 2 hardcoded API keys — move to environment variables',                  file: 'src/config/keys.ts',                effort: '2 hours', impact: 'Eliminates credential leak risk' },
+        { priority: 'critical', tool: 'Fortify',   action: 'Fix XSS vulnerability in dashboard renderer — apply output encoding',          file: 'src/dashboard/render.ts:41',        effort: '4 hours', impact: 'Closes OWASP A03 violation'    },
+        { priority: 'high',     tool: 'ESLint',    action: `Resolve ${mockESLintReport.errors} build-blocking ESLint errors`,               file: 'Multiple files',                    effort: '3 hours', impact: 'Restores clean build pipeline'  },
+        { priority: 'high',     tool: 'SonarQube', action: `Increase test coverage from ${mockUnitTestExecution.overallCoverage}% to 80%`, file: 'src/payment/** · src/auth/**',      effort: '2 days',  impact: 'Meets quality gate threshold'   },
+        { priority: 'medium',   tool: 'CVEs',      action: 'Patch 2 critical CVEs in dependency scan — upgrade affected packages',        file: 'package.json',                      effort: '1 hour',  impact: 'Resolves supply-chain risk'     },
+      ],
+      summary: `${mockFortifyScan.critical} critical Fortify findings and ${mockESLintReport.errors} ESLint errors are blocking the next production deployment. Resolve the SQL Injection and hardcoded secrets issues first — estimated 1.5 days to clear all deployment blockers.`,
+    });
+    setAgentPhase('done');
+  };
+
+  const openAgent = (mode: 'audit' | 'fix' | 'compliance') => {
+    const runId = ++agentRunIdRef.current;
+    setAgentMode(mode);
+    setAgentOpen(true);
+    setAgentPhase('idle');
+    setAgentSteps([]);
+    setAgentPlan(null);
+    setTimeout(() => { runAgent(runId, mode); }, 400);
+  };
+
+  const priorityStyle = {
+    critical: { badge: 'bg-red-100 text-red-800',    dot: 'bg-red-500'    },
+    high:     { badge: 'bg-orange-100 text-orange-800', dot: 'bg-orange-500' },
+    medium:   { badge: 'bg-yellow-100 text-yellow-800', dot: 'bg-yellow-500' },
+  };
 
   /**
    * Renders a coloured pill badge for a guardrail tool's overall status.
@@ -132,9 +239,24 @@ export function Guardrails() {
             <div className="mt-4 pt-4 border-t border-white/20">
               <p className="text-sm font-semibold">💡 AI Recommendation:</p>
               <p className="text-sm opacity-95 mt-1">
-                Prioritize fixing critical security vulnerabilities before next deployment. Implement automated security 
-                scanning in CI/CD pipeline to prevent future issues. Target 80%+ test coverage and zero critical findings.
+                {mockFortifyScan.critical} critical Fortify findings + {mockESLintReport.errors} ESLint errors block the next
+                production deployment. Fix SQL Injection and hardcoded secrets first — estimated 1.5 days to clear all gate blockers.
+                Target 80%+ test coverage and zero critical CVEs before promoting v1.1.1 to UAT.
               </p>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <button onClick={() => openAgent('audit')}
+                className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded text-sm font-medium transition-colors flex items-center gap-2">
+                <Shield className="size-4" /> Run Security Audit
+              </button>
+              <button onClick={() => openAgent('fix')}
+                className="bg-white text-[#163A5F] hover:bg-gray-100 px-4 py-2 rounded text-sm font-medium transition-colors flex items-center gap-2">
+                <Bug className="size-4" /> Generate Fix Plan
+              </button>
+              <button onClick={() => openAgent('compliance')}
+                className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded text-sm font-medium transition-colors flex items-center gap-2">
+                <Lock className="size-4" /> View Compliance Report
+              </button>
             </div>
           </div>
         </div>
@@ -581,6 +703,106 @@ export function Guardrails() {
           ))}
         </div>
       </div>
+
+      {/* ── AI Guardrails Agent Modal ─────────────────────────────────────── */}
+      {agentOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => agentPhase !== 'running' && setAgentOpen(false)} />
+          <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 bg-[#163A5F]">
+              <div className="flex items-center gap-3 text-white">
+                <Shield className="size-5" />
+                <h2 className="font-semibold text-lg">
+                  {agentMode === 'audit' ? 'AI Security Audit Agent' : agentMode === 'fix' ? 'AI Fix Plan Agent' : 'AI Compliance Report Agent'}
+                </h2>
+              </div>
+              {agentPhase !== 'running' && (
+                <button onClick={() => setAgentOpen(false)} className="text-white/70 hover:text-white transition-colors">
+                  <X className="size-5" />
+                </button>
+              )}
+            </div>
+
+            <div className="overflow-y-auto flex-1 p-6 space-y-6">
+              {/* Steps */}
+              <div className="space-y-3">
+                {agentSteps.map(step => (
+                  <div key={step.id} className="flex items-start gap-3">
+                    <AgentStepIcon status={step.status} />
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-medium ${step.status === 'pending' ? 'text-gray-400' : 'text-gray-900'}`}>{step.label}</p>
+                      {step.detail && <p className="text-xs text-gray-500 mt-0.5">{step.detail}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Remediation Plan */}
+              {agentPlan && (
+                <div className="space-y-5 border-t border-gray-200 pt-5">
+                  {/* Risk Score */}
+                  <div className="flex items-center gap-4 p-4 rounded-lg bg-gray-50 border border-gray-200">
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-gray-900">{agentPlan.riskScore}</p>
+                      <p className="text-xs text-gray-500">/ 100</p>
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`text-sm font-semibold px-2 py-0.5 rounded ${agentPlan.riskLabel === 'High' ? 'bg-orange-100 text-orange-800' : agentPlan.riskLabel === 'Critical' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                          {agentPlan.riskLabel} Risk
+                        </span>
+                        {agentPlan.blocksDeployment && (
+                          <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded font-medium">⛔ Blocks Deployment</span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-600">{agentPlan.summary}</p>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-3">Prioritised Remediation Actions</h4>
+                    <div className="space-y-2">
+                      {agentPlan.actions.map((action, i) => {
+                        const s = priorityStyle[action.priority];
+                        return (
+                          <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 transition-colors">
+                            <span className={`mt-0.5 w-2 h-2 rounded-full flex-shrink-0 ${s.dot}`} style={{ marginTop: '6px' }} />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap mb-1">
+                                <span className={`text-xs font-semibold px-2 py-0.5 rounded capitalize ${s.badge}`}>{action.priority}</span>
+                                <span className="text-xs text-gray-500 font-medium">{action.tool}</span>
+                              </div>
+                              <p className="text-sm text-gray-900">{action.action}</p>
+                              {action.file && <p className="text-xs font-mono text-gray-500 mt-0.5">{action.file}</p>}
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <p className="text-xs font-medium text-gray-700">{action.effort}</p>
+                              <p className="text-xs text-green-700 mt-0.5">{action.impact}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            {agentPhase === 'done' && (
+              <div className="px-6 py-4 border-t border-gray-200 flex justify-between items-center bg-gray-50">
+                <p className="text-xs text-gray-500">{agentPlan?.actions.length} actions identified · estimated total effort: ~4 days</p>
+                <button onClick={() => setAgentOpen(false)}
+                  className="bg-[#163A5F] text-white px-4 py-2 rounded text-sm font-medium hover:bg-[#0d2a47] transition-colors flex items-center gap-2">
+                  Done <ChevronRight className="size-4" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -149,28 +149,6 @@ export function Layout({ children }: LayoutProps) {
             })}
           </nav>
           
-          {/* ── Sidebar footer: AI Intelligence badge ── */}
-          <div className="p-4 border-t border-gray-200">
-            <div className="relative overflow-hidden bg-[#163A5F] rounded-xl p-5 text-white">
-              {/* Decorative blurred circles for depth — purely cosmetic */}
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute top-0 left-0 size-20 bg-white rounded-full -translate-x-1/2 -translate-y-1/2" />
-                <div className="absolute bottom-0 right-0 size-16 bg-white rounded-full translate-x-1/2 translate-y-1/2" />
-              </div>
-              
-              <div className="relative">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="size-8 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
-                    <Activity className="size-4" />
-                  </div>
-                  <span className="font-bold text-sm">AI Intelligence</span>
-                </div>
-                <p className="text-xs opacity-90 leading-relaxed">
-                  Powered by advanced analytics across Jira, GitHub, and CI/CD pipelines
-                </p>
-              </div>
-            </div>
-          </div>
         </aside>
 
         {/* ── Mobile slide-in drawer ── */}
