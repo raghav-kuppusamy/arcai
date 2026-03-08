@@ -500,12 +500,12 @@ export function Preferences() {
       </div>
 
       {/* API Data Coverage Info */}
-      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-lg p-6">
+      <div className="bg-[#EBF5FF] border border-[#D2D2D7] rounded-lg p-6">
         <div className="flex items-start gap-3 mb-4">
-          <Info className="size-6 text-indigo-600 flex-shrink-0 mt-0.5" />
+          <Info className="size-6 text-[#0071E3] flex-shrink-0 mt-0.5" />
           <div>
-            <h3 className="font-semibold text-indigo-900 mb-1">What Data Will Arc Pull?</h3>
-            <p className="text-sm text-indigo-800 mb-4">
+            <h3 className="font-semibold text-[#163A5F] mb-1">What Data Will Arc Pull?</h3>
+            <p className="text-sm text-[#6E6E73] mb-4">
               With the configuration above, Arc will automatically fetch and analyze the following data:
             </p>
           </div>
@@ -567,9 +567,9 @@ export function Preferences() {
           </div>
         </div>
 
-        <div className="mt-4 pt-4 border-t border-indigo-200">
-          <h4 className="font-semibold text-indigo-900 mb-2">📊 AI-Powered Analytics Include:</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-indigo-800">
+        <div className="mt-4 pt-4 border-t border-[#D2D2D7]">
+          <h4 className="font-semibold text-[#163A5F] mb-2">📊 AI-Powered Analytics Include:</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-[#6E6E73]">
             <div>• Bottleneck Detection & Root Cause Analysis</div>
             <div>• Predictive Timeline Risk Assessment</div>
             <div>• Team Velocity Trends & Forecasting</div>
@@ -586,7 +586,7 @@ export function Preferences() {
       <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
 
         {/* Section header */}
-        <div className="bg-gradient-to-r from-violet-600 to-purple-700 px-6 py-5">
+        <div className="bg-[#163A5F] px-6 py-5">
           <div className="flex items-start gap-4">
             <div className="bg-white/20 p-2 rounded-lg flex-shrink-0">
               <Brain className="size-6 text-white" />
@@ -596,13 +596,13 @@ export function Preferences() {
                 <Sparkles className="size-4" />
                 Train Arc AI with Historical Data
               </h3>
-              <p className="text-violet-100 text-sm mt-1">
+              <p className="text-white/80 text-sm mt-1">
                 Upload previous project reports, Jira exports and deployment logs so Arc AI can learn
                 your team’s patterns, velocity baselines and risk indicators — making every
                 recommendation specific to your context.
               </p>
               {trainedAt && (
-                <p className="text-violet-200 text-xs mt-2">
+                <p className="text-white/60 text-xs mt-2">
                   Last trained: {trainedAt}
                 </p>
               )}
@@ -625,16 +625,16 @@ export function Preferences() {
                   <div key={source.id}
                     className={`relative flex items-center gap-3 rounded-lg border-2 border-dashed px-4 py-3 transition-colors ${
                       filename
-                        ? 'border-violet-300 bg-violet-50'
-                        : 'border-gray-200 bg-gray-50 hover:border-violet-300 hover:bg-violet-50/40'
+                        ? 'border-[#0071E3] bg-[#EBF5FF]'
+                        : 'border-gray-200 bg-gray-50 hover:border-[#0071E3] hover:bg-[#EBF5FF]/40'
                     }`}>
-                    <div className={`flex-shrink-0 ${ filename ? 'text-violet-500' : 'text-gray-400' }`}>
+                    <div className={`flex-shrink-0 ${ filename ? 'text-[#0071E3]' : 'text-gray-400' }`}>
                       {filename ? <FileText className="size-5" /> : <Upload className="size-5" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-800">{source.label}</p>
                       {filename ? (
-                        <p className="text-xs text-violet-600 truncate" title={filename}>{filename}</p>
+                        <p className="text-xs text-[#0071E3] truncate" title={filename}>{filename}</p>
                       ) : (
                         <p className="text-xs text-gray-400">{source.hint}</p>
                       )}
@@ -654,7 +654,7 @@ export function Preferences() {
                           className="sr-only"
                           onChange={e => handleFileSelect(source.id, e.target.files?.[0])}
                         />
-                        <span className="text-xs text-violet-600 hover:text-violet-800 font-medium">Browse</span>
+                        <span className="text-xs text-[#0071E3] hover:text-[#0058B3] font-medium">Browse</span>
                       </label>
                     )}
                   </div>
@@ -669,8 +669,8 @@ export function Preferences() {
               <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Training Progress</p>
               {trainSteps.map(step => (
                 <div key={step.id} className="flex items-start gap-3">
-                  {step.status === 'done'    && <CheckCircle className="size-5 text-violet-500 flex-shrink-0 mt-0.5" />}
-                  {step.status === 'running' && <Loader2    className="size-5 text-violet-500 animate-spin flex-shrink-0 mt-0.5" />}
+                  {step.status === 'done'    && <CheckCircle className="size-5 text-[#0071E3] flex-shrink-0 mt-0.5" />}
+                  {step.status === 'running' && <Loader2    className="size-5 text-[#0071E3] animate-spin flex-shrink-0 mt-0.5" />}
                   {step.status === 'pending' && <div className="size-5 rounded-full border-2 border-gray-300 flex-shrink-0 mt-0.5" />}
                   <div className="flex-1">
                     <p className={`text-sm font-medium ${ step.status === 'pending' ? 'text-gray-400' : 'text-gray-800' }`}>{step.label}</p>
@@ -685,11 +685,11 @@ export function Preferences() {
 
           {/* Done banner */}
           {trainPhase === 'done' && (
-            <div className="bg-violet-50 border border-violet-200 rounded-lg p-4 flex items-start gap-3">
-              <CheckCircle className="size-5 text-violet-600 flex-shrink-0 mt-0.5" />
+            <div className="bg-[#EBF5FF] border border-[#D2D2D7] rounded-lg p-4 flex items-start gap-3">
+              <CheckCircle className="size-5 text-[#0071E3] flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-semibold text-violet-900">Arc AI training complete!</p>
-                <p className="text-xs text-violet-700 mt-0.5">
+                <p className="text-sm font-semibold text-[#163A5F]">Arc AI training complete!</p>
+                <p className="text-xs text-[#6E6E73] mt-0.5">
                   Your historical data has been indexed. All agents across Dashboard, Planning,
                   Stories and Deployments will now incorporate your project context into their
                   analysis and recommendations.

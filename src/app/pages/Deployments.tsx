@@ -281,7 +281,7 @@ export function Deployments() {
       </div>
 
       {/* AI Insights for Deployments */}
-      <div className="bg-gradient-to-r from-orange-600 to-red-600 rounded-lg p-6 text-white">
+      <div className="bg-[#163A5F] rounded-lg p-6 text-white">
         <div className="flex items-start gap-4">
           <div className="flex-1">
             <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
@@ -507,7 +507,7 @@ export function Deployments() {
         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"
           onClick={() => readyPhase !== 'running' && setReadyOpen(false)} />
         <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-orange-600 to-red-600">
+          <div className="flex items-center justify-between px-6 py-4 bg-[#163A5F]">
             <div className="flex items-center gap-3 text-white">
               <Sparkles className="size-5" />
               <h2 className="font-semibold text-lg">AI Deployment Readiness Agent</h2>
@@ -604,7 +604,7 @@ export function Deployments() {
         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"
           onClick={() => schedulePhase !== 'running' && setScheduleOpen(false)} />
         <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-blue-600 to-cyan-600">
+          <div className="flex items-center justify-between px-6 py-4 bg-[#163A5F]">
             <div className="flex items-center gap-3 text-white">
               <Sparkles className="size-5" />
               <h2 className="font-semibold text-lg">AI Deploy Scheduler Agent</h2>
@@ -700,7 +700,7 @@ export function Deployments() {
         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"
           onClick={() => rollbackPhase !== 'running' && setRollbackOpen(false)} />
         <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-rose-600 to-red-700">
+          <div className="flex items-center justify-between px-6 py-4 bg-[#163A5F]">
             <div className="flex items-center gap-3 text-white">
               <Sparkles className="size-5" />
               <h2 className="font-semibold text-lg">AI Rollback Strategy Agent</h2>

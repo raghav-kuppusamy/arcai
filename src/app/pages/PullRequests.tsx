@@ -104,7 +104,7 @@ export function PullRequests() {
       </div>
 
       {/* AI Insights for PRs */}
-      <div className="bg-gradient-to-r from-green-600 to-teal-600 rounded-lg p-6 text-white">
+      <div className="bg-[#163A5F] rounded-lg p-6 text-white">
         <div className="flex items-start gap-4">
           <div className="flex-1">
             <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">

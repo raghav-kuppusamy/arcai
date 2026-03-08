@@ -293,7 +293,7 @@ export function Planning() {
       </div>
 
       {/* AI Insights for Planning Phase */}
-      <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg p-6 text-white">
+      <div className="bg-[#163A5F] rounded-lg p-6 text-white">
         <div className="flex items-start gap-4">
           <div className="flex-1">
             <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
@@ -670,7 +670,7 @@ export function Planning() {
           <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
 
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600">
+            <div className="flex items-center justify-between px-6 py-4 bg-[#163A5F]">
               <div className="flex items-center gap-3 text-white">
                 <Sparkles className="size-5" />
                 <h2 className="font-semibold text-lg">AI Project Analysis Agent</h2>
@@ -819,7 +819,7 @@ export function Planning() {
           <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
 
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-purple-600 to-blue-600">
+            <div className="flex items-center justify-between px-6 py-4 bg-[#163A5F]">
               <div className="flex items-center gap-3 text-white">
                 <Sparkles className="size-5" />
                 <h2 className="font-semibold text-lg">AI Schedule Optimisation Agent</h2>

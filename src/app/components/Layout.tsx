@@ -58,7 +58,7 @@ export function Layout({ children }: LayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F5F5F7]">
       {/* ── Sticky header: always visible regardless of scroll position ── */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
         <div className="px-4 sm:px-6 lg:px-8">
@@ -69,10 +69,10 @@ export function Layout({ children }: LayoutProps) {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+                  <h1 className="text-2xl font-bold text-[#163A5F]">
                     Arc
                   </h1>
-                  <span className="px-2 py-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs font-semibold rounded-full">
+                  <span className="px-2 py-0.5 bg-[#0071E3] text-white text-xs font-semibold rounded-full">
                     AI
                   </span>
                 </div>
@@ -105,8 +105,8 @@ export function Layout({ children }: LayoutProps) {
                   to={item.path}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                     isActive
-                      ? 'bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 shadow-sm'
-                      : 'text-gray-700 hover:bg-gray-50'
+                      ? 'bg-[#EBF5FF] text-[#0071E3] shadow-sm'
+                      : 'text-[#163A5F] hover:bg-gray-100'
                   }`}
                 >
                   <Icon className="size-5" />
@@ -118,7 +118,7 @@ export function Layout({ children }: LayoutProps) {
           
           {/* ── Sidebar footer: AI Intelligence badge ── */}
           <div className="p-4 border-t border-gray-200">
-            <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-600 rounded-xl p-5 text-white">
+            <div className="relative overflow-hidden bg-[#163A5F] rounded-xl p-5 text-white">
               {/* Decorative blurred circles for depth — purely cosmetic */}
               <div className="absolute inset-0 opacity-10">
                 <div className="absolute top-0 left-0 size-20 bg-white rounded-full -translate-x-1/2 -translate-y-1/2" />
@@ -146,11 +146,11 @@ export function Layout({ children }: LayoutProps) {
         {mobileMenuOpen && (
           <div className="lg:hidden fixed inset-0 z-50 bg-black/50" onClick={() => setMobileMenuOpen(false)}>
             <aside className="w-64 bg-white h-full" onClick={(e) => e.stopPropagation()}>
-              <div className="p-4 border-b border-gray-200">
+              <div className="p-4 border-b border-[#D2D2D7]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <ArcLogo className="size-8" />
-                    <h2 className="text-lg font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Arc</h2>
+                    <h2 className="text-lg font-bold text-[#163A5F]">Arc</h2>
                   </div>
                   <button onClick={() => setMobileMenuOpen(false)} className="p-1">
                     <X className="size-5" />
@@ -168,8 +168,8 @@ export function Layout({ children }: LayoutProps) {
                       onClick={() => setMobileMenuOpen(false)}
                       className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                         isActive
-                          ? 'bg-blue-50 text-blue-700'
-                          : 'text-gray-700 hover:bg-gray-50'
+                          ? 'bg-[#EBF5FF] text-[#0071E3]'
+                          : 'text-[#163A5F] hover:bg-gray-100'
                       }`}
                     >
                       <Icon className="size-5" />

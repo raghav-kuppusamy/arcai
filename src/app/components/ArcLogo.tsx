@@ -15,15 +15,15 @@ export function ArcLogo({ className = "size-8" }: { className?: string }) {
       <defs>
         {/* Premium gradient */}
         <linearGradient id={mainGradId} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
-          <stop offset="50%" style={{ stopColor: '#8b5cf6', stopOpacity: 1 }} />
-          <stop offset="100%" style={{ stopColor: '#d946ef', stopOpacity: 1 }} />
+          <stop offset="0%" style={{ stopColor: '#0071E3', stopOpacity: 1 }} />
+          <stop offset="50%" style={{ stopColor: '#0058B3', stopOpacity: 1 }} />
+          <stop offset="100%" style={{ stopColor: '#34AADC', stopOpacity: 1 }} />
         </linearGradient>
         
         {/* Accent gradient */}
         <linearGradient id={accentGradId} x1="0%" y1="100%" x2="100%" y2="0%">
-          <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 0.8 }} />
-          <stop offset="100%" style={{ stopColor: '#06b6d4', stopOpacity: 0.8 }} />
+          <stop offset="0%" style={{ stopColor: '#5AC8FA', stopOpacity: 0.8 }} />
+          <stop offset="100%" style={{ stopColor: '#0071E3', stopOpacity: 0.8 }} />
         </linearGradient>
 
         {/* Glow effect */}

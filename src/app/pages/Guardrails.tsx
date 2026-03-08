@@ -102,7 +102,7 @@ export function Guardrails() {
       </div>
 
       {/* Intelligence Section */}
-      <div className="bg-gradient-to-r from-teal-600 to-emerald-600 rounded-lg p-6 text-white">
+      <div className="bg-[#163A5F] rounded-lg p-6 text-white">
         <div className="flex items-start gap-4">
           <div className="flex-1">
             <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">

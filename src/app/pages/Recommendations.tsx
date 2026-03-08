@@ -94,7 +94,7 @@ export function Recommendations() {
       </div>
 
       {/* Summary Card */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white">
+      <div className="bg-[#163A5F] rounded-lg p-6 text-white">
         <div className="flex items-start gap-4">
           <Sparkles className="size-10 flex-shrink-0" />
           <div className="flex-1">
@@ -281,7 +281,7 @@ export function Recommendations() {
           </div>
         </div>
 
-        <div className="mt-6 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4">
+        <div className="mt-6 bg-[#EBF5FF] border border-[#D2D2D7] rounded-lg p-4">
           <div className="flex items-center gap-3">
             <Sparkles className="size-8 text-blue-600" />
             <div>
