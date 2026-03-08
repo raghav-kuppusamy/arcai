@@ -11,6 +11,7 @@
  * Navigation items are defined in a single config array so adding
  * a new page only requires one change here and a new route in routes.tsx.
  */
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import {
   LayoutDashboard,
@@ -27,8 +28,9 @@ import {
   Settings,
   Shield,
   LogOut,
+  Moon,
+  Sun,
 } from 'lucide-react';
-import { useState } from 'react';
 import { ArcLogo } from './ArcLogo';
 import { useAuth } from '../context/AuthContext';
 
@@ -51,6 +53,16 @@ export function Layout({ children }: LayoutProps) {
   }
 
   // Controls the slide-in mobile navigation drawer
+  const [isDark, setIsDark] = useState<boolean>(() => {
+    try { return localStorage.getItem('arc-theme') === 'dark'; } catch { return false; }
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isDark) { root.classList.add('dark'); localStorage.setItem('arc-theme', 'dark'); }
+    else         { root.classList.remove('dark'); localStorage.setItem('arc-theme', 'light'); }
+  }, [isDark]);
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Single source of truth for sidebar navigation.
@@ -63,13 +75,13 @@ export function Layout({ children }: LayoutProps) {
     { name: 'Deployments', path: '/deployments', icon: Rocket },
     { name: 'Guardrails', path: '/guardrails', icon: Shield },
     { name: 'Bottlenecks', path: '/bottlenecks', icon: AlertTriangle },
-    { name: 'Preferences', path: '/preferences', icon: Settings },
+    { name: 'Settings', path: '/preferences', icon: Settings },
   ];
 
   return (
-    <div className="min-h-screen bg-[#F5F5F7]">
+    <div className="min-h-screen bg-[#F5F5F7] dark:bg-slate-950">
       {/* ── Sticky header: always visible regardless of scroll position ── */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+      <header className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 sticky top-0 z-10 shadow-sm">
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center gap-3 group">
@@ -78,25 +90,34 @@ export function Layout({ children }: LayoutProps) {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-bold text-[#163A5F]">
+                  <h1 className="text-2xl font-bold text-[#163A5F] dark:text-white">
                     Arc
                   </h1>
                   <span className="px-2 py-0.5 bg-[#0071E3] text-white text-xs font-semibold rounded-full">
                     AI
                   </span>
                 </div>
-                <p className="text-xs text-gray-500 font-medium">Project Intelligence Platform</p>
+                <p className="text-xs text-gray-500 dark:text-slate-400 font-medium">Project Intelligence Platform</p>
               </div>
             </Link>
             
             {/* Right side: user info + logout (desktop) + mobile menu trigger */}
             <div className="flex items-center gap-3">
 
+              {/* Dark mode toggle */}
+              <button
+                onClick={() => setIsDark(d => !d)}
+                title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+                className="p-2 rounded-lg text-gray-500 hover:text-[#163A5F] hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-slate-700 transition-colors"
+              >
+                {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+              </button>
+
               {/* Desktop user pill */}
               {user && (
                 <div className="hidden lg:flex items-center gap-3">
                   <div className="text-right">
-                    <p className="text-sm font-semibold text-[#163A5F] leading-tight">{user.name}</p>
+                    <p className="text-sm font-semibold text-[#163A5F] dark:text-slate-200 leading-tight">{user.name}</p>
                     <p className="text-xs text-gray-400 leading-tight">{user.role}</p>
                   </div>
                   <div className="size-9 rounded-full bg-[#163A5F] text-white text-sm font-bold flex items-center justify-center flex-shrink-0">
@@ -126,7 +147,7 @@ export function Layout({ children }: LayoutProps) {
 
       <div className="flex">
         {/* ── Desktop sidebar: hidden on mobile, always shown on lg+ ── */}
-        <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-4rem)]">
+        <aside className="hidden lg:flex lg:flex-col w-64 bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-slate-700 min-h-[calc(100vh-4rem)]">
           <nav className="flex-1 p-4 space-y-1">
             {navigation.map((item) => {
               const Icon = item.icon;
@@ -138,8 +159,8 @@ export function Layout({ children }: LayoutProps) {
                   to={item.path}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                     isActive
-                      ? 'bg-[#EBF5FF] text-[#0071E3] shadow-sm'
-                      : 'text-[#163A5F] hover:bg-gray-100'
+                      ? 'bg-[#EBF5FF] dark:bg-slate-700 text-[#0071E3] dark:text-blue-400 shadow-sm'
+                      : 'text-[#163A5F] dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800'
                   }`}
                 >
                   <Icon className="size-5" />
@@ -156,12 +177,12 @@ export function Layout({ children }: LayoutProps) {
             stopPropagation on the aside prevents the tap from bubbling up. */}
         {mobileMenuOpen && (
           <div className="lg:hidden fixed inset-0 z-50 bg-black/50" onClick={() => setMobileMenuOpen(false)}>
-            <aside className="w-64 bg-white h-full" onClick={(e) => e.stopPropagation()}>
+            <aside className="w-64 bg-white dark:bg-slate-900 h-full" onClick={(e) => e.stopPropagation()}>
               <div className="p-4 border-b border-[#D2D2D7]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <ArcLogo className="size-8" />
-                    <h2 className="text-lg font-bold text-[#163A5F]">Arc</h2>
+                    <h2 className="text-lg font-bold text-[#163A5F] dark:text-white">Arc</h2>
                   </div>
                   <button onClick={() => setMobileMenuOpen(false)} className="p-1">
                     <X className="size-5" />
@@ -179,8 +200,8 @@ export function Layout({ children }: LayoutProps) {
                       onClick={() => setMobileMenuOpen(false)}
                       className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                         isActive
-                          ? 'bg-[#EBF5FF] text-[#0071E3]'
-                          : 'text-[#163A5F] hover:bg-gray-100'
+                          ? 'bg-[#EBF5FF] dark:bg-slate-700 text-[#0071E3] dark:text-blue-400'
+                          : 'text-[#163A5F] dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800'
                       }`}
                     >
                       <Icon className="size-5" />

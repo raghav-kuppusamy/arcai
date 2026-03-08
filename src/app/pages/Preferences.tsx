@@ -174,7 +174,7 @@ export function Preferences() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold text-gray-900">Preferences</h2>
+          <h2 className="text-2xl font-semibold text-gray-900">Settings</h2>
           <p className="text-gray-600 mt-1">Configure API tokens and integrations</p>
         </div>
         <Settings className="size-8 text-gray-400" />

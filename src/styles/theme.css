@@ -119,6 +119,54 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* ── Dark mode overrides for hardcoded Tailwind utility classes ────────────── */
+/* The app uses concrete colour values (bg-white, text-gray-900, etc.) rather  */
+/* than CSS variables, so we remap those utilities under .dark here.            */
+.dark {
+  /* Page & surface backgrounds */
+  & .bg-white        { background-color: #1e293b; }
+  & .bg-gray-50      { background-color: #1e293b; }
+  & .bg-gray-100     { background-color: #334155; }
+  & .bg-gray-200     { background-color: #475569; }
+  & .bg-\[#F5F5F7\]  { background-color: #0f172a; }
+  & .min-h-screen    { background-color: #0f172a; }
+
+  /* Header & sidebar chrome */
+  & header.bg-white,
+  & header.shadow-sm  { background-color: #1e293b; border-color: #334155; }
+  & aside.bg-white    { background-color: #1e293b; border-color: #334155; }
+
+  /* Borders */
+  & .border-gray-200  { border-color: #334155; }
+  & .border-gray-100  { border-color: #1e293b; }
+  & .border-gray-300  { border-color: #475569; }
+  & .divide-gray-200 > * + * { border-color: #334155; }
+
+  /* Text */
+  & .text-gray-900    { color: #f1f5f9; }
+  & .text-gray-800    { color: #e2e8f0; }
+  & .text-gray-700    { color: #cbd5e1; }
+  & .text-gray-600    { color: #94a3b8; }
+  & .text-gray-500    { color: #64748b; }
+  & .text-gray-400    { color: #475569; }
+
+  /* Input / form */
+  & input.bg-white,
+  & input.border-gray-300,
+  & select.bg-white,
+  & select.border-gray-300,
+  & textarea.bg-white  { background-color: #1e293b; color: #f1f5f9; border-color: #475569; }
+  & .bg-gray-50 input  { background-color: #334155; }
+
+  /* Hover surfaces */
+  & .hover\:bg-gray-50:hover  { background-color: #334155; }
+  & .hover\:bg-gray-100:hover { background-color: #475569; }
+
+  /* Table rows */
+  & tr.hover\:bg-gray-50:hover { background-color: #334155; }
+  & tbody tr:nth-child(even)   { background-color: #1a2940; }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

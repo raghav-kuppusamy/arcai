@@ -59,7 +59,23 @@ import {
   mockUnitTestExecution,
   mockSecurityScans,
 } from '../data/mockData';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, BarChart, Bar, ComposedChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+
+/** Custom Recharts bar shape that renders a lollipop: a thin stem + filled circle head. */
+const LollipopBar = (props: {
+  x?: number; y?: number; width?: number; height?: number; fill?: string;
+}) => {
+  const { x = 0, y = 0, width = 0, height = 0, fill = '#8884d8' } = props;
+  if (height <= 0) return null;
+  const cx = x + width / 2;
+  const r = Math.min(width / 2, 7);
+  return (
+    <g>
+      <line x1={cx} y1={y + height} x2={cx} y2={y + r} stroke={fill} strokeWidth={2.5} />
+      <circle cx={cx} cy={y + r} r={r} fill={fill} />
+    </g>
+  );
+};
 
 type AgentStepStatus = 'pending' | 'running' | 'done';
 interface AgentStep { id: string; label: string; detail?: string; status: AgentStepStatus; }
@@ -167,6 +183,8 @@ export function Dashboard() {
   interface AnalysisItem       { label: string; value: string; note?: string; }
   interface AnalysisSection    { title: string; items: AnalysisItem[]; }
   interface DeliveryAnalysis   { score: number; label: 'Green' | 'Amber' | 'Red'; indicators: DeliveryIndicator[]; sections: AnalysisSection[]; keyFindings: string[]; }
+
+  const [hoveredStatus, setHoveredStatus]   = useState<string | null>(null);
 
   const [analysisOpen, setAnalysisOpen]     = useState(false);
   const [analysisPhase, setAnalysisPhase]   = useState<'idle' | 'running' | 'done'>('idle');
@@ -1008,15 +1026,15 @@ export function Dashboard() {
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <h3 className="font-semibold text-gray-900 mb-4">Sprint Velocity Trend</h3>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={velocityTrend}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="sprint" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} label={{ value: 'Story Points', angle: -90, position: 'insideLeft' }} />
-              <Tooltip />
+            <ComposedChart data={velocityTrend} barCategoryGap="30%" barGap={10}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="sprint" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 12 }} label={{ value: 'Story Points', angle: -90, position: 'insideLeft' }} axisLine={false} tickLine={false} />
+              <Tooltip cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
               <Legend />
-              <Bar dataKey="planned" fill="#94a3b8" name="Planned" />
-              <Bar dataKey="completed" fill="#10b981" name="Completed" />
-            </BarChart>
+              <Bar dataKey="planned" name="Planned" fill="#94a3b8" barSize={18} shape={<LollipopBar fill="#94a3b8" />} />
+              <Bar dataKey="completed" name="Completed" fill="#10b981" barSize={18} shape={<LollipopBar fill="#10b981" />} />
+            </ComposedChart>
           </ResponsiveContainer>
           <div className="mt-4 text-sm text-gray-600">
             <p>Current Sprint: <span className="font-semibold text-gray-900">Sprint 6</span></p>
@@ -1024,49 +1042,135 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* Story Status Distribution */}
+        {/* Story Status Distribution — Waffle Chart */}
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <h3 className="font-semibold text-gray-900 mb-4">Story Status Distribution</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={storyStatusData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                outerRadius={100}
-                fill="#8884d8"
-                dataKey="value"
+          {(() => {
+            const total = storyStatusData.reduce((s, d) => s + d.value, 0) || 1;
+            // Build flat array of 100 cells each carrying { color, name }
+            const cells: { color: string; name: string }[] = [];
+            let filled = 0;
+            storyStatusData.forEach((d, i) => {
+              const count = i === storyStatusData.length - 1
+                ? 100 - filled
+                : Math.round((d.value / total) * 100);
+              for (let j = 0; j < count; j++) cells.push({ color: d.color, name: d.name });
+              filled += count;
+            });
+            return (
+              <div
+                className="flex flex-col items-center gap-5"
+                onMouseLeave={() => setHoveredStatus(null)}
               >
-                {storyStatusData.map((entry, index) => (
-                  <Cell key={`dashboard-pie-cell-${entry.name}-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+                {/* 10×10 grid */}
+                <div
+                  className="grid gap-1"
+                  style={{ gridTemplateColumns: 'repeat(10, 1fr)', width: '100%', maxWidth: 260 }}
+                >
+                  {cells.map((cell, i) => {
+                    const dimmed = hoveredStatus !== null && hoveredStatus !== cell.name;
+                    const highlighted = hoveredStatus === cell.name;
+                    return (
+                      <div
+                        key={i}
+                        className="rounded-sm cursor-pointer"
+                        style={{
+                          backgroundColor: cell.color,
+                          aspectRatio: '1',
+                          opacity: dimmed ? 0.15 : 1,
+                          transform: highlighted ? 'scale(1.15)' : 'scale(1)',
+                          transition: 'opacity 0.15s ease, transform 0.15s ease',
+                          boxShadow: highlighted ? `0 0 0 1.5px ${cell.color}` : 'none',
+                        }}
+                        onMouseEnter={() => setHoveredStatus(cell.name)}
+                      />
+                    );
+                  })}
+                </div>
+                {/* Legend */}
+                <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
+                  {storyStatusData.map(d => {
+                    const pct = Math.round((d.value / total) * 100);
+                    const dimmed = hoveredStatus !== null && hoveredStatus !== d.name;
+                    const highlighted = hoveredStatus === d.name;
+                    return (
+                      <div
+                        key={d.name}
+                        className="flex items-center gap-1.5 text-xs cursor-pointer select-none"
+                        style={{
+                          opacity: dimmed ? 0.3 : 1,
+                          fontWeight: highlighted ? 700 : undefined,
+                          transition: 'opacity 0.15s ease',
+                          color: highlighted ? d.color : undefined,
+                        }}
+                        onMouseEnter={() => setHoveredStatus(d.name)}
+                      >
+                        <span
+                          className="size-3 rounded-sm flex-shrink-0"
+                          style={{
+                            backgroundColor: d.color,
+                            transform: highlighted ? 'scale(1.3)' : 'scale(1)',
+                            transition: 'transform 0.15s ease',
+                          }}
+                        />
+                        <span>{d.name}</span>
+                        <span className="font-semibold">{pct}%</span>
+                        <span style={{ color: highlighted ? d.color : '#9ca3af' }}>({d.value})</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </div>
 
       {/* Charts Row 2 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Cycle Time Analysis */}
+        {/* Current Sprint Summary */}
         <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h3 className="font-semibold text-gray-900 mb-4">Average Cycle Time by Stage</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={cycleTimeData} layout="horizontal">
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" tick={{ fontSize: 12 }} label={{ value: 'Days', position: 'insideBottom', offset: -5 }} />
-              <YAxis type="category" dataKey="stage" tick={{ fontSize: 12 }} width={80} />
-              <Tooltip formatter={(value) => `${value} days`} />
-              <Bar dataKey="avgDays" fill="#3b82f6" name="Avg Days" />
-            </BarChart>
-          </ResponsiveContainer>
-          <div className="mt-4 bg-orange-50 border border-orange-200 rounded p-3">
-            <p className="text-sm text-orange-800">
-              ⚠ Stories spending 8 days in Backlog and 3.5 days in Review
-            </p>
+          <h3 className="font-semibold text-gray-900 mb-4">Current Sprint Summary</h3>
+          <div className="grid grid-cols-1 gap-4">
+            <div>
+              <p className="text-sm text-gray-600 mb-2">In Progress</p>
+              <div className="space-y-2">
+                {mockUserStories.filter(s => s.status === 'in-progress').map(story => (
+                  <div key={story.id} className="flex items-center gap-2 text-sm">
+                    <div className={`size-2 rounded-full ${story.type === 'defect' ? 'bg-red-500' : 'bg-blue-500'}`} />
+                    <span className="font-medium text-gray-700">{story.key}</span>
+                    <span className="text-gray-600 truncate">{story.title}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-2">In Review</p>
+              <div className="space-y-2">
+                {mockUserStories.filter(s => s.status === 'in-review').map(story => (
+                  <div key={story.id} className="flex items-center gap-2 text-sm">
+                    <div className={`size-2 rounded-full ${story.type === 'defect' ? 'bg-red-500' : 'bg-purple-500'}`} />
+                    <span className="font-medium text-gray-700">{story.key}</span>
+                    <span className="text-gray-600 truncate">{story.title}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-2">Blockers</p>
+              {mockUserStories.some(s => s.blockers && s.blockers.length > 0) ? (
+                <div className="space-y-2">
+                  {mockUserStories.filter(s => s.blockers && s.blockers.length > 0).map(story => (
+                    <div key={story.id} className="bg-red-50 border border-red-200 rounded p-2">
+                      <p className="text-sm font-medium text-red-900">{story.key}</p>
+                      <p className="text-xs text-red-700">{story.blockers![0]}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-green-600">No blockers 🎉</p>
+              )}
+            </div>
           </div>
         </div>
 
@@ -1092,53 +1196,6 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* Current Sprint Summary */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Current Sprint Summary</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <p className="text-sm text-gray-600 mb-2">In Progress</p>
-            <div className="space-y-2">
-              {mockUserStories.filter(s => s.status === 'in-progress').map(story => (
-                <div key={story.id} className="flex items-center gap-2 text-sm">
-                  <div className={`size-2 rounded-full ${story.type === 'defect' ? 'bg-red-500' : 'bg-blue-500'}`} />
-                  <span className="font-medium text-gray-700">{story.key}</span>
-                  <span className="text-gray-600 truncate">{story.title}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <p className="text-sm text-gray-600 mb-2">In Review</p>
-            <div className="space-y-2">
-              {mockUserStories.filter(s => s.status === 'in-review').map(story => (
-                <div key={story.id} className="flex items-center gap-2 text-sm">
-                  <div className={`size-2 rounded-full ${story.type === 'defect' ? 'bg-red-500' : 'bg-purple-500'}`} />
-                  <span className="font-medium text-gray-700">{story.key}</span>
-                  <span className="text-gray-600 truncate">{story.title}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <p className="text-sm text-gray-600 mb-2">Blockers</p>
-            {mockUserStories.some(s => s.blockers && s.blockers.length > 0) ? (
-              <div className="space-y-2">
-                {mockUserStories.filter(s => s.blockers && s.blockers.length > 0).map(story => (
-                  <div key={story.id} className="bg-red-50 border border-red-200 rounded p-2">
-                    <p className="text-sm font-medium text-red-900">{story.key}</p>
-                    <p className="text-xs text-red-700">{story.blockers![0]}</p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-green-600">No blockers 🎉</p>
-            )}
-          </div>
-        </div>
-      </div>
     </div>
 
     {/* ── AI View Full Analysis modal ─────────────────────────────────── */}
