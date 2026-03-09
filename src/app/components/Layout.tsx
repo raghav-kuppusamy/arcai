@@ -15,10 +15,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import {
   LayoutDashboard,
-  List,
   AlertTriangle,
-  Lightbulb,
-  Activity,
   Menu,
   X,
   CheckSquare,

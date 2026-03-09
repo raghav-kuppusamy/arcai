@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 import { Eye, EyeOff, Sparkles, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { ArcLogo } from '../components/ArcLogo';
@@ -7,6 +7,8 @@ import { ArcLogo } from '../components/ArcLogo';
 export function LoginPage() {
   const { login } = useAuth();
   const navigate   = useNavigate();
+  const location   = useLocation();
+  const from       = (location.state as { from?: { pathname: string } } | null)?.from?.pathname || '/';
 
   const [email,      setEmail]      = useState('');
   const [password,   setPassword]   = useState('');
@@ -24,7 +26,8 @@ export function LoginPage() {
 
     const ok = login(email, password, remember);
     if (ok) {
-      navigate('/', { replace: true });
+      setLoading(false);
+      navigate(from, { replace: true });
     } else {
       setError('Invalid email or password. Please try again.');
       setLoading(false);

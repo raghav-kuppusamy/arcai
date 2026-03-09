@@ -131,7 +131,9 @@ export function Preferences() {
     githubToken: localStorage.getItem('github_token') || '',
     githubOrg: localStorage.getItem('github_org') || '',
     githubRepo: localStorage.getItem('github_repo') || '',
-    pipelineProvider: localStorage.getItem('pipeline_provider') as 'jenkins' | 'circleci' | 'github-actions' | 'gitlab-ci' | 'azure-devops' | '' || '',
+    pipelineProvider: (['jenkins', 'circleci', 'github-actions', 'gitlab-ci', 'azure-devops'] as const).find(
+      v => v === localStorage.getItem('pipeline_provider')
+    ) ?? '',
     pipelineUrl: localStorage.getItem('pipeline_url') || '',
     pipelineToken: localStorage.getItem('pipeline_token') || '',
     pipelineProject: localStorage.getItem('pipeline_project') || '',

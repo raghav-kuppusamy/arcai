@@ -35,8 +35,6 @@ const DEMO_USERS: Record<string, AuthUser> = {
 
 const STORAGE_KEY = 'arcai_auth_user';
 
-const DEFAULT_USER = DEMO_USERS['raghav.kuppusamy@gmail.com'];
-
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

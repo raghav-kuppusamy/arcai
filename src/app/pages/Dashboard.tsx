@@ -105,7 +105,7 @@ export function Dashboard() {
   const inProgressStories = mockUserStories.filter(s => s.status === 'in-progress').length;
   const defects = mockUserStories.filter(s => s.type === 'defect').length;
   // Refinement rate tells us how sprint-planning-ready the backlog is
-  const refinementRate = Math.round((refinedStories / totalStories) * 100);
+  const refinementRate = totalStories > 0 ? Math.round((refinedStories / totalStories) * 100) : 0;
 
   // ─── GitHub PR metrics ───────────────────────────────────────────────
   const totalPRs = mockPullRequests.length;
@@ -118,7 +118,7 @@ export function Dashboard() {
 
   // ─── Deployment metrics ──────────────────────────────────────────────
   const successfulDeploys = mockDeployments.filter(d => d.status === 'success').length;
-  const deploymentRate = Math.round((successfulDeploys / mockDeployments.length) * 100);
+  const deploymentRate = mockDeployments.length > 0 ? Math.round((successfulDeploys / mockDeployments.length) * 100) : 0;
   const failedDeploys = mockDeployments.filter(d => d.status === 'failed').length;
 
   // Most recent deploy per environment — sorted descending by deployedAt
@@ -384,6 +384,7 @@ export function Dashboard() {
 
     const win = window.open('', '_blank', 'width=900,height=700');
     if (win) { win.document.write(html); win.document.close(); }
+    else { alert('Pop-up blocked. Please allow pop-ups for this site and try again.'); }
   };
 
   // ─── Generate Report agent ───────────────────────────────────────────────
@@ -531,6 +532,8 @@ export function Dashboard() {
     if (printWin) {
       printWin.document.write(html);
       printWin.document.close();
+    } else {
+      alert('Pop-up blocked. Please allow pop-ups for this site and try again.');
     }
 
     // Reset phase back to done after a short delay
