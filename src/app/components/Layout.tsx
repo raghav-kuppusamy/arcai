@@ -56,8 +56,8 @@ export function Layout({ children }: LayoutProps) {
 
   useEffect(() => {
     const root = document.documentElement;
-    if (isDark) { root.classList.add('dark'); localStorage.setItem('arc-theme', 'dark'); }
-    else         { root.classList.remove('dark'); localStorage.setItem('arc-theme', 'light'); }
+    if (isDark) { root.classList.add('dark'); try { localStorage.setItem('arc-theme', 'dark'); } catch { /* ignore */ } }
+    else         { root.classList.remove('dark'); try { localStorage.setItem('arc-theme', 'light'); } catch { /* ignore */ } }
   }, [isDark]);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

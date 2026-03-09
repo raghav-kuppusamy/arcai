@@ -55,6 +55,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(authUser);
     if (remember) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(authUser));
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
     }
     return true;
   }, []);

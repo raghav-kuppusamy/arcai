@@ -57,7 +57,7 @@ export function PullRequests() {
   };
 
   // ─── Core PR metrics ────────────────────────────────────────────────
-  const openPRs = mockPullRequests.filter(pr => pr.status === 'open' || pr.status === 'under-review');
+  const openPRs = mockPullRequests.filter(pr => pr.status === 'open' || pr.status === 'under-review' || pr.status === 'approved');
   // Average age across open/under-review PRs is the primary velocity indicator
   const avgReviewTime = openPRs.length > 0
     ? Math.round(openPRs.reduce((sum, pr) => sum + pr.daysOpen, 0) / openPRs.length)

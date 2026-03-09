@@ -258,8 +258,8 @@ export function Stories() {
   };
 
   // Alert thresholds — shown as warning banners above the board
-  const unrefinedCount = mockUserStories.filter(s => !s.isRefined && s.status === 'backlog').length;
-  const blockedCount   = mockUserStories.filter(s => s.blockers && s.blockers.length > 0).length;
+  const unrefinedCount = displayedStories.filter(s => !s.isRefined && s.status === 'backlog').length;
+  const blockedCount   = displayedStories.filter(s => s.blockers && s.blockers.length > 0).length;
 
   return (
     <div className="space-y-6">

@@ -1,14 +1,16 @@
 import { useState, type FormEvent } from 'react';
-import { useNavigate, useLocation } from 'react-router';
+import { useNavigate, useLocation, Navigate } from 'react-router';
 import { Eye, EyeOff, Sparkles, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { ArcLogo } from '../components/ArcLogo';
 
 export function LoginPage() {
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate   = useNavigate();
   const location   = useLocation();
   const from       = (location.state as { from?: { pathname: string } } | null)?.from?.pathname || '/';
+
+  if (user) return <Navigate to={from} replace />;
 
   const [email,      setEmail]      = useState('');
   const [password,   setPassword]   = useState('');
