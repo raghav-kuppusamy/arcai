@@ -532,14 +532,13 @@ export function Planning() {
         </div>
       </div>
 
-      {/* Change Control & Quality Gates Grid */}
+      {/* Change Control & Handover Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Change Requests */}
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           <div className="p-6 border-b border-gray-200">
             <h3 className="font-semibold text-gray-900">Change Requests</h3>
           </div>
-
           <div className="divide-y divide-gray-200 max-h-96 overflow-y-auto">
             {mockChangeRequests.map(cr => (
               <div key={cr.id} className="p-4 hover:bg-gray-50">
@@ -560,88 +559,35 @@ export function Planning() {
           </div>
         </div>
 
-        {/* Quality Gates */}
+        {/* Handover to Operations */}
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           <div className="p-6 border-b border-gray-200">
-            <h3 className="font-semibold text-gray-900">Quality Gates</h3>
+            <h3 className="font-semibold text-gray-900">Handover to Operations</h3>
           </div>
-
           <div className="divide-y divide-gray-200 max-h-96 overflow-y-auto">
-            {mockQualityGates.map(qg => (
-              <div key={qg.id} className="p-4 hover:bg-gray-50">
+            {mockHandoverItems.map(item => (
+              <div key={item.id} className="p-4 hover:bg-gray-50">
                 <div className="flex items-start justify-between mb-2">
-                  <h4 className="font-medium text-gray-900 text-sm">{qg.name}</h4>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium border capitalize ${getStatusColor(qg.status)}`}>
-                    {qg.status}
+                  <h4 className="font-medium text-gray-900 text-sm">{item.item}</h4>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium border capitalize ${getStatusColor(item.status)}`}>
+                    {item.status}
                   </span>
                 </div>
-                <div className="flex items-center gap-4 text-xs text-gray-600 mb-2">
-                  <span className="capitalize">{qg.type.replace('-', ' ')}</span>
-                  <span>Due: {new Date(qg.dueDate).toLocaleDateString()}</span>
-                  {qg.reviewedBy && <span>By: {qg.reviewedBy}</span>}
+                <div className="flex items-center gap-4 text-xs text-gray-600">
+                  <span className="capitalize">{item.category}</span>
+                  <span>Owner: <span className="font-medium">{item.owner}</span></span>
+                  <span>Due: {new Date(item.dueDate).toLocaleDateString()}</span>
                 </div>
-                {qg.criticalFindings > 0 && (
-                  <div className="text-xs bg-red-50 text-red-800 px-2 py-1 rounded">
-                    {qg.criticalFindings} critical finding{qg.criticalFindings > 1 ? 's' : ''}
+                {item.notes && <p className="text-xs text-gray-500 mt-1">{item.notes}</p>}
+                {item.completedDate && (
+                  <div className="mt-1 text-xs text-green-600 flex items-center gap-1">
+                    <CheckCircle className="size-3" />
+                    Completed {new Date(item.completedDate).toLocaleDateString()}
                   </div>
                 )}
               </div>
             ))}
           </div>
-        </div>
-      </div>
-
-      {/* Handover to Operations */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="p-6 border-b border-gray-200">
-          <h3 className="font-semibold text-gray-900">Handover to Operations</h3>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completed</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {mockHandoverItems.map(item => (
-                <tr key={item.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm text-gray-900 capitalize">{item.category}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900">{item.item}</div>
-                    {item.notes && <div className="text-xs text-gray-500">{item.notes}</div>}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium border capitalize ${getStatusColor(item.status)}`}>
-                      {item.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.owner}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                    {new Date(item.dueDate).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                    {item.completedDate ? (
-                      <span className="text-green-600 flex items-center gap-1">
-                        <CheckCircle className="size-4" />
-                        {new Date(item.completedDate).toLocaleDateString()}
-                      </span>
-                    ) : (
-                      <span className="text-gray-400">-</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       </div>
 

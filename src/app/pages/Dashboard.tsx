@@ -554,8 +554,8 @@ export function Dashboard() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-semibold text-gray-900">Arc Dashboard</h2>
-        <p className="text-gray-600 mt-1">Real-time insights across Planning, Development, and Deployment</p>
+        <h2 className="text-2xl font-semibold text-gray-900">Executive Overview</h2>
+        <p className="text-gray-600 mt-1">Full-pipeline analysis and executive reporting across Planning, Development, and Deployment</p>
       </div>
 
       {/* AI Executive Summary */}
