@@ -559,10 +559,10 @@ export function Dashboard() {
       </div>
 
       {/* AI Executive Summary */}
-      <div className="bg-[#163A5F] rounded-lg p-6 text-white">
+      <div className="bg-gray-200 rounded-lg p-6 shadow-md text-gray-900">
         <div className="flex items-start gap-4">
           <div className="flex-1">
-            <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
+            <h3 className="font-semibold text-lg mb-2 flex items-center gap-2 text-[#163A5F]">
               <Sparkles className="size-5" />
               Executive Intelligence Summary
             </h3>
@@ -585,7 +585,7 @@ export function Dashboard() {
                 </ul>
               </div>
             </div>
-            <div className="mt-4 pt-4 border-t border-white/20">
+            <div className="mt-4 pt-4 border-t border-gray-300">
               <p className="text-sm font-semibold">💡 AI Recommendation:</p>
               <p className="text-sm opacity-95 mt-1">
                 Implement 3 quick wins (story refinement gates, PR review SLA, WIP limits) to improve 
@@ -595,13 +595,13 @@ export function Dashboard() {
             <div className="mt-4 flex gap-3">
               <button
                 onClick={openAnalysis}
-                className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded text-sm font-medium transition-colors"
+                className="bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm font-medium transition-colors"
               >
                 View Full Analysis
               </button>
               <button
                 onClick={openReport}
-                className="bg-white text-indigo-600 hover:bg-gray-100 px-4 py-2 rounded text-sm font-medium transition-colors"
+                className="bg-[#163A5F] text-white hover:bg-[#1e4d7b] px-4 py-2 rounded text-sm font-medium transition-colors"
               >
                 Generate Report
               </button>

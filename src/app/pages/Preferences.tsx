@@ -16,7 +16,7 @@
  *   - In production, credentials should be stored server-side via a secrets manager.
  */
 import { useState, useRef } from 'react';
-import { Settings, Eye, EyeOff, Save, Key, CheckCircle, AlertCircle, Info, Upload, Brain, Trash2, Loader2, Sparkles, FileText } from 'lucide-react';
+import { Settings, Eye, EyeOff, Save, Key, CheckCircle, AlertCircle, Info, Upload, Brain, Trash2, Loader2, Sparkles, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 
 /**
  * ApiConfig — the shape of all integration credentials managed on this page.
@@ -48,6 +48,10 @@ export function Preferences() {
   const [showJiraToken, setShowJiraToken] = useState(false);
   const [showGithubToken, setShowGithubToken] = useState(false);
   const [showPipelineToken, setShowPipelineToken] = useState(false);
+  const [dataInfoOpen, setDataInfoOpen] = useState(false);
+  const [jiraOpen, setJiraOpen] = useState(false);
+  const [githubOpen, setGithubOpen] = useState(false);
+  const [cicdOpen, setCicdOpen] = useState(false);
 
   // 'idle' = unsaved, 'success' = just saved, 'error' = localStorage write failed
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -212,20 +216,26 @@ export function Preferences() {
       </div>
 
       {/* Jira Configuration */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="bg-blue-100 p-2 rounded-lg">
-            <svg className="size-6" viewBox="0 0 24 24" fill="currentColor">
-              <path className="text-blue-600" d="M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1.001-1.001zM23.013 0H11.455a5.215 5.215 0 0 0 5.215 5.215h2.129v2.057A5.215 5.215 0 0 0 24 12.483V1.005A1.001 1.001 0 0 0 23.013 0z"/>
-            </svg>
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <button
+          onClick={() => setJiraOpen(o => !o)}
+          className="w-full flex items-center justify-between gap-3 p-6 text-left hover:bg-gray-50 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-100 p-2 rounded-lg flex-shrink-0">
+              <svg className="size-6" viewBox="0 0 24 24" fill="currentColor">
+                <path className="text-blue-600" d="M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1.001-1.001zM23.013 0H11.455a5.215 5.215 0 0 0 5.215 5.215h2.129v2.057A5.215 5.215 0 0 0 24 12.483V1.005A1.001 1.001 0 0 0 23.013 0z"/>
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900">Jira Configuration</h3>
+              <p className="text-sm text-gray-600">Connect to your Jira instance</p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-semibold text-gray-900">Jira Configuration</h3>
-            <p className="text-sm text-gray-600">Connect to your Jira instance</p>
-          </div>
-        </div>
+          {jiraOpen ? <ChevronUp className="size-5 text-gray-400 flex-shrink-0" /> : <ChevronDown className="size-5 text-gray-400 flex-shrink-0" />}
+        </button>
 
-        <div className="space-y-4">
+        {jiraOpen && <div className="px-6 pb-6 border-t border-gray-100 pt-4 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Jira URL
@@ -309,24 +319,39 @@ export function Preferences() {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             />
           </div>
-        </div>
+          <div className="flex justify-end pt-2">
+            <button
+              onClick={handleSave}
+              className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            >
+              <Save className="size-4" />
+              Save Configuration
+            </button>
+          </div>
+        </div>}
       </div>
 
       {/* GitHub Configuration */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="bg-gray-900 p-2 rounded-lg">
-            <svg className="size-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
-            </svg>
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <button
+          onClick={() => setGithubOpen(o => !o)}
+          className="w-full flex items-center justify-between gap-3 p-6 text-left hover:bg-gray-50 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="bg-gray-900 p-2 rounded-lg flex-shrink-0">
+              <svg className="size-6 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900">GitHub Configuration</h3>
+              <p className="text-sm text-gray-600">Connect to your GitHub repositories</p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-semibold text-gray-900">GitHub Configuration</h3>
-            <p className="text-sm text-gray-600">Connect to your GitHub repositories</p>
-          </div>
-        </div>
+          {githubOpen ? <ChevronUp className="size-5 text-gray-400 flex-shrink-0" /> : <ChevronDown className="size-5 text-gray-400 flex-shrink-0" />}
+        </button>
 
-        <div className="space-y-4">
+        {githubOpen && <div className="px-6 pb-6 border-t border-gray-100 pt-4 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Personal Access Token
@@ -385,25 +410,40 @@ export function Preferences() {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             />
           </div>
-        </div>
+          <div className="flex justify-end pt-2">
+            <button
+              onClick={handleSave}
+              className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            >
+              <Save className="size-4" />
+              Save Configuration
+            </button>
+          </div>
+        </div>}
       </div>
 
       {/* CI/CD Pipeline Configuration */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="bg-purple-100 p-2 rounded-lg">
-            <svg className="size-6 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10"/>
-              <polyline points="12 6 12 12 16 14"/>
-            </svg>
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <button
+          onClick={() => setCicdOpen(o => !o)}
+          className="w-full flex items-center justify-between gap-3 p-6 text-left hover:bg-gray-50 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="bg-purple-100 p-2 rounded-lg flex-shrink-0">
+              <svg className="size-6 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900">CI/CD Pipeline Configuration</h3>
+              <p className="text-sm text-gray-600">Connect to your deployment pipeline (Jenkins, CircleCI, etc.)</p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-semibold text-gray-900">CI/CD Pipeline Configuration</h3>
-            <p className="text-sm text-gray-600">Connect to your deployment pipeline (Jenkins, CircleCI, etc.)</p>
-          </div>
-        </div>
+          {cicdOpen ? <ChevronUp className="size-5 text-gray-400 flex-shrink-0" /> : <ChevronDown className="size-5 text-gray-400 flex-shrink-0" />}
+        </button>
 
-        <div className="space-y-4">
+        {cicdOpen && <div className="px-6 pb-6 border-t border-gray-100 pt-4 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Pipeline Provider
@@ -498,21 +538,39 @@ export function Preferences() {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             />
           </div>
-        </div>
+          <div className="flex justify-end pt-2">
+            <button
+              onClick={handleSave}
+              className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            >
+              <Save className="size-4" />
+              Save Configuration
+            </button>
+          </div>
+        </div>}
       </div>
 
       {/* API Data Coverage Info */}
-      <div className="bg-[#EBF5FF] border border-[#D2D2D7] rounded-lg p-6">
-        <div className="flex items-start gap-3 mb-4">
-          <Info className="size-6 text-[#0071E3] flex-shrink-0 mt-0.5" />
-          <div>
-            <h3 className="font-semibold text-[#163A5F] mb-1">What Data Will Arc Pull?</h3>
-            <p className="text-sm text-[#6E6E73] mb-4">
-              With the configuration above, Arc will automatically fetch and analyze the following data:
-            </p>
+      <div className="bg-[#EBF5FF] border border-[#D2D2D7] rounded-lg overflow-hidden">
+        <button
+          onClick={() => setDataInfoOpen(o => !o)}
+          className="w-full flex items-center justify-between gap-3 p-6 text-left hover:bg-blue-50 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <Info className="size-6 text-[#0071E3] flex-shrink-0" />
+            <div>
+              <h3 className="font-semibold text-[#163A5F]">What Data Will Arc Pull?</h3>
+              <p className="text-sm text-[#6E6E73]">
+                With the configuration above, Arc will automatically fetch and analyze the following data.
+              </p>
+            </div>
           </div>
-        </div>
+          {dataInfoOpen
+            ? <ChevronUp className="size-5 text-[#0071E3] flex-shrink-0" />
+            : <ChevronDown className="size-5 text-[#0071E3] flex-shrink-0" />}
+        </button>
 
+        {dataInfoOpen && <div className="px-6 pb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Jira Data */}
           <div className="bg-white rounded-lg p-4 border border-indigo-100">
@@ -582,6 +640,7 @@ export function Preferences() {
             <div>• Quality Gate Failure Predictions</div>
           </div>
         </div>
+        </div>}
       </div>
 
       {/* ─── Train Arc AI with Historical Data ─────────────────────────── */}
@@ -730,16 +789,6 @@ export function Preferences() {
         </div>
       </div>
 
-      {/* Save Button */}
-      <div className="flex justify-end gap-3 pt-4">
-        <button
-          onClick={handleSave}
-          className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-        >
-          <Save className="size-5" />
-          Save Configuration
-        </button>
-      </div>
     </div>
   );
 }

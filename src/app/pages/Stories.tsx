@@ -270,10 +270,10 @@ export function Stories() {
       </div>
 
       {/* AI Insights for Stories */}
-      <div className="bg-[#163A5F] rounded-lg p-6 text-white">
+      <div className="bg-gray-200 rounded-lg p-6 shadow-md text-gray-900">
         <div className="flex items-start gap-4">
           <div className="flex-1">
-            <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
+            <h3 className="font-semibold text-lg mb-2 flex items-center gap-2 text-[#163A5F]">
               <Sparkles className="size-5" />
               Story Intelligence
             </h3>
@@ -296,12 +296,12 @@ export function Stories() {
               </p>
             </div>
             <div className="mt-4 flex gap-3">
-              <button className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded text-sm font-medium transition-colors">
+              <button className="bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm font-medium transition-colors">
                 View Sprint Forecast
               </button>
               <button
                 onClick={openAgent}
-                className="bg-white text-blue-600 hover:bg-gray-100 px-4 py-2 rounded text-sm font-medium transition-colors"
+                className="bg-[#163A5F] text-white hover:bg-[#1e4d7b] px-4 py-2 rounded text-sm font-medium transition-colors"
               >
                 Optimize Sprint Plan
               </button>

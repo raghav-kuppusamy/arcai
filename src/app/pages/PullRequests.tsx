@@ -104,10 +104,10 @@ export function PullRequests() {
       </div>
 
       {/* AI Insights for PRs */}
-      <div className="bg-[#163A5F] rounded-lg p-6 text-white">
+      <div className="bg-gray-200 rounded-lg p-6 shadow-md text-gray-900">
         <div className="flex items-start gap-4">
           <div className="flex-1">
-            <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
+            <h3 className="font-semibold text-lg mb-2 flex items-center gap-2 text-[#163A5F]">
               <Sparkles className="size-5" />
               Code Review Intelligence
             </h3>
@@ -162,22 +162,22 @@ export function PullRequests() {
             </div>
             <div className="mt-4 flex flex-wrap gap-3">
               {blockedPRs.length > 0 && (
-                <div className="bg-white/20 px-3 py-1.5 rounded text-xs font-medium">
+                <div className="bg-gray-300 text-gray-700 px-3 py-1.5 rounded text-xs font-medium">
                   {blockedPRs.length} Blocked PR{blockedPRs.length > 1 ? 's' : ''}
                 </div>
               )}
               {criticalAIIssues > 0 && (
-                <div className="bg-red-500/80 px-3 py-1.5 rounded text-xs font-medium">
+                <div className="bg-red-500 text-white px-3 py-1.5 rounded text-xs font-medium">
                   {criticalAIIssues} Critical Issue{criticalAIIssues > 1 ? 's' : ''}
                 </div>
               )}
               {largePRs.length > 0 && (
-                <div className="bg-orange-500/80 px-3 py-1.5 rounded text-xs font-medium">
+                <div className="bg-orange-500 text-white px-3 py-1.5 rounded text-xs font-medium">
                   {largePRs.length} Large PR{largePRs.length > 1 ? 's' : ''}
                 </div>
               )}
               {pipelineSuccessRate < 90 && prsWithPipeline.length > 0 && (
-                <div className="bg-yellow-500/80 px-3 py-1.5 rounded text-xs font-medium">
+                <div className="bg-yellow-500 text-white px-3 py-1.5 rounded text-xs font-medium">
                   {pipelineSuccessRate}% Pipeline Success
                 </div>
               )}

@@ -281,10 +281,10 @@ export function Deployments() {
       </div>
 
       {/* AI Insights for Deployments */}
-      <div className="bg-[#163A5F] rounded-lg p-6 text-white">
+      <div className="bg-gray-200 rounded-lg p-6 shadow-md text-gray-900">
         <div className="flex items-start gap-4">
           <div className="flex-1">
-            <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
+            <h3 className="font-semibold text-lg mb-2 flex items-center gap-2 text-[#163A5F]">
               <Sparkles className="size-5" />
               Deployment Intelligence
             </h3>
@@ -312,15 +312,15 @@ export function Deployments() {
             </div>
             <div className="mt-4 flex gap-3 flex-wrap">
               <button onClick={openReady}
-                className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded text-sm font-medium transition-colors">
+                className="bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm font-medium transition-colors">
                 🎯 Run Deployment Readiness Check
               </button>
               <button onClick={openSchedule}
-                className="bg-white text-orange-600 hover:bg-gray-100 px-4 py-2 rounded text-sm font-medium transition-colors">
+                className="bg-[#163A5F] text-white hover:bg-[#1e4d7b] px-4 py-2 rounded text-sm font-medium transition-colors">
                 📅 Schedule Optimal Deploy Time
               </button>
               <button onClick={openRollback}
-                className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded text-sm font-medium transition-colors">
+                className="bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm font-medium transition-colors">
                 🔄 View Rollback Strategy
               </button>
             </div>
