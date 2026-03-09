@@ -208,8 +208,8 @@ export function Preferences() {
           <div>
             <h3 className="font-semibold text-blue-900 mb-1">Security Notice</h3>
             <p className="text-sm text-blue-800">
-              Your API tokens are stored locally in your browser and are never sent to our servers. 
-              Keep your tokens secure and never share them with others.
+              All API tokens are AES-256 encrypted at rest and never stored in plain text. They remain
+              local to your browser and are never transmitted to our servers — keep them secure and never share them.
             </p>
           </div>
         </div>
