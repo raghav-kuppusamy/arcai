@@ -122,15 +122,6 @@ export function Stories() {
   const hasActiveFilters = search || filterStatus || filterType || filterPriority || filterRefined;
 
   // ─── AI Sprint Optimisation Agent ───────────────────────────────────────────
-  type AgentStepStatus = 'pending' | 'running' | 'done';
-
-  interface AgentStep {
-    id: string;
-    label: string;
-    detail?: string;
-    status: AgentStepStatus;
-  }
-
   interface SprintAction {
     type: 'escalate' | 'defer' | 'reassign' | 'split';
     story: string;
