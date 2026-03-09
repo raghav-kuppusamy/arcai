@@ -28,7 +28,6 @@ import { PullRequests } from "./pages/PullRequests";
 import { Deployments } from "./pages/Deployments";
 import { Bottlenecks } from "./pages/Bottlenecks";
 import { Guardrails } from "./pages/Guardrails";
-import { Recommendations } from "./pages/Recommendations";
 import { Preferences } from "./pages/Preferences";
 import { NotFound } from "./pages/NotFound";
 
@@ -82,11 +81,6 @@ export const router = createBrowserRouter([
     path: "/bottlenecks",
     element: <Protected><Bottlenecks /></Protected>,
   },
-  {
-    path: "/recommendations",
-    element: <Protected><Recommendations /></Protected>,
-  },
-
   // ─── Settings ────────────────────────────────────────────────────────────
   {
     path: "/preferences",

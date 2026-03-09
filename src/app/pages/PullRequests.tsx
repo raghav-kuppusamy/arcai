@@ -451,7 +451,7 @@ export function PullRequests() {
                   )}
 
                   {/* Pipeline Failure Blocking */}
-                  {pr.blockingReason === 'pipeline-failure' && pr.pipelineStatus === 'failed' && (
+                  {pr.blockingReason === 'pipeline-failure' && (
                     <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4">
                       <div className="flex items-start gap-3 mb-3">
                         <Zap className="size-6 text-red-600 flex-shrink-0" />
@@ -464,9 +464,14 @@ export function PullRequests() {
                       </div>
                       <div className="bg-white border border-red-200 rounded p-4">
                         <div className="flex items-start gap-2 mb-3">
-                          <XCircle className="size-5 text-red-600 flex-shrink-0 mt-0.5" />
+                          {pr.pipelineStatus === 'failed'
+                            ? <XCircle className="size-5 text-red-600 flex-shrink-0 mt-0.5" />
+                            : <Clock className="size-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                          }
                           <div className="flex-1">
-                            <p className="font-medium text-red-900 mb-1">Pipeline Status: Failed</p>
+                            <p className="font-medium text-red-900 mb-1">
+                              Pipeline Status: {pr.pipelineStatus === 'failed' ? 'Failed' : pr.pipelineStatus === 'running' ? 'Re-running…' : 'Pending'}
+                            </p>
                             {pr.pipelineFailureReason && (
                               <p className="text-sm text-gray-700 mb-3">
                                 <strong>Failure Reason:</strong> {pr.pipelineFailureReason}

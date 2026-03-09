@@ -22,7 +22,7 @@ export function LoginPage() {
 
     await new Promise(r => setTimeout(r, 600));
 
-    const ok = login(email, password);
+    const ok = login(email, password, remember);
     if (ok) {
       navigate('/', { replace: true });
     } else {

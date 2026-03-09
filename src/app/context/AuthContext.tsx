@@ -9,7 +9,7 @@ export interface AuthUser {
 
 interface AuthContextType {
   user: AuthUser | null;
-  login: (email: string, password: string) => boolean;
+  login: (email: string, password: string, remember?: boolean) => boolean;
   logout: () => void;
 }
 
@@ -45,18 +45,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) return JSON.parse(stored) as AuthUser;
     } catch { /* ignore */ }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_USER));
-    return DEFAULT_USER;
+    return null;
   });
 
-  const login = useCallback((email: string, password: string): boolean => {
+  const login = useCallback((email: string, password: string, remember: boolean = true): boolean => {
     const match = DEMO_CREDENTIALS.find(
       c => c.email === email.trim().toLowerCase() && c.password === password,
     );
     if (!match) return false;
     const authUser = DEMO_USERS[match.email];
     setUser(authUser);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(authUser));
+    if (remember) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(authUser));
+    }
     return true;
   }, []);
 

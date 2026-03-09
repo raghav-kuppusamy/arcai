@@ -351,7 +351,7 @@ export function Bottlenecks() {
                 {/* Bottleneck Items */}
                 {hasBottlenecks && (
                   <div className="divide-y divide-gray-200">
-                    {phaseBottlenecks.map((bottleneck, index) => (
+                    {phaseBottlenecks.map((bottleneck) => (
                       <div key={bottleneck.id} className="p-6 bg-white hover:bg-gray-50 transition-colors">
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1">
@@ -391,63 +391,65 @@ export function Bottlenecks() {
                                     <p className="text-sm font-medium text-gray-900">{bottleneck.impact}</p>
                                   </div>
                                 </div>
-
-                                {/* AI Root Cause */}
-                                <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
-                                  <p className="text-xs font-semibold text-blue-900 mb-1 flex items-center gap-2">
-                                    <Zap className="size-4" />
-                                    AI Root Cause Analysis
-                                  </p>
-                                  <ul className="text-xs text-blue-800 space-y-1">
-                                    {phase.id === 'planning' && (
-                                      <>
-                                        <li>• Stories lacking clear acceptance criteria</li>
-                                        <li>• Infrequent refinement sessions (every 2 weeks vs weekly)</li>
-                                        <li>• No "Definition of Ready" enforcement</li>
-                                      </>
-                                    )}
-                                    {phase.id === 'development' && (
-                                      <>
-                                        <li>• Unplanned defect work disrupting sprint commitments</li>
-                                        <li>• No dedicated defect resolution capacity allocated</li>
-                                        <li>• Context switching between features and bug fixes</li>
-                                      </>
-                                    )}
-                                    {phase.id === 'review' && (
-                                      <>
-                                        <li>• No review SLA or accountability metrics</li>
-                                        <li>• Large PRs (15+ files) taking 2.3x longer to review</li>
-                                        <li>• Reviewers handling &gt;3 PRs simultaneously</li>
-                                      </>
-                                    )}
-                                    {phase.id === 'deployment' && (
-                                      <>
-                                        <li>• Manual UAT deployment requiring 45min average</li>
-                                        <li>• Stakeholder availability delays (2-3 day wait time)</li>
-                                        <li>• No automated smoke testing in UAT environment</li>
-                                      </>
-                                    )}
-                                  </ul>
-                                </div>
-
-                                {/* AI Recommendation */}
-                                <div className="mt-3 bg-green-50 border border-green-200 rounded-lg p-3">
-                                  <p className="text-xs font-semibold text-green-900 mb-1 flex items-center gap-2">
-                                    💡 AI Recommendation
-                                  </p>
-                                  <p className="text-xs text-green-800">
-                                    {phase.id === 'planning' && 'Implement weekly refinement sessions with "Definition of Ready" checklist. Expected reduction: 5 days → 2 days (60% improvement).'}
-                                    {phase.id === 'development' && 'Allocate 20% sprint capacity for defect resolution. Use WIP limits to reduce context switching. Expected: +8 story points/sprint.'}
-                                    {phase.id === 'review' && 'Set 24hr review SLA with automated reminders. Break large PRs into &lt;300 lines. Expected: 3.5 days → 1 day (71% improvement).'}
-                                    {phase.id === 'deployment' && 'Automate UAT deployments and implement scheduled testing windows. Expected: 4 days → 1.5 days (62% improvement).'}
-                                  </p>
-                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
                     ))}
+
+                    {/* AI Root Cause — phase-level analysis, rendered once per phase */}
+                    <div className="p-6 bg-white">
+                      <div className="mt-0 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <p className="text-xs font-semibold text-blue-900 mb-1 flex items-center gap-2">
+                          <Zap className="size-4" />
+                          AI Root Cause Analysis
+                        </p>
+                        <ul className="text-xs text-blue-800 space-y-1">
+                          {phase.id === 'planning' && (
+                            <>
+                              <li>• Stories lacking clear acceptance criteria</li>
+                              <li>• Infrequent refinement sessions (every 2 weeks vs weekly)</li>
+                              <li>• No "Definition of Ready" enforcement</li>
+                            </>
+                          )}
+                          {phase.id === 'development' && (
+                            <>
+                              <li>• Unplanned defect work disrupting sprint commitments</li>
+                              <li>• No dedicated defect resolution capacity allocated</li>
+                              <li>• Context switching between features and bug fixes</li>
+                            </>
+                          )}
+                          {phase.id === 'review' && (
+                            <>
+                              <li>• No review SLA or accountability metrics</li>
+                              <li>• Large PRs (15+ files) taking 2.3x longer to review</li>
+                              <li>• Reviewers handling &gt;3 PRs simultaneously</li>
+                            </>
+                          )}
+                          {phase.id === 'deployment' && (
+                            <>
+                              <li>• Manual UAT deployment requiring 45min average</li>
+                              <li>• Stakeholder availability delays (2-3 day wait time)</li>
+                              <li>• No automated smoke testing in UAT environment</li>
+                            </>
+                          )}
+                        </ul>
+                      </div>
+
+                      {/* AI Recommendation — phase-level, rendered once per phase */}
+                      <div className="mt-3 bg-green-50 border border-green-200 rounded-lg p-3">
+                        <p className="text-xs font-semibold text-green-900 mb-1 flex items-center gap-2">
+                          💡 AI Recommendation
+                        </p>
+                        <p className="text-xs text-green-800">
+                          {phase.id === 'planning' && 'Implement weekly refinement sessions with "Definition of Ready" checklist. Expected reduction: 5 days → 2 days (60% improvement).'}
+                          {phase.id === 'development' && 'Allocate 20% sprint capacity for defect resolution. Use WIP limits to reduce context switching. Expected: +8 story points/sprint.'}
+                          {phase.id === 'review' && 'Set 24hr review SLA with automated reminders. Break large PRs into <300 lines. Expected: 3.5 days → 1 day (71% improvement).'}
+                          {phase.id === 'deployment' && 'Automate UAT deployments and implement scheduled testing windows. Expected: 4 days → 1.5 days (62% improvement).'}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 )}
 

@@ -75,7 +75,7 @@ export function Layout({ children }: LayoutProps) {
     { name: 'Deployments', path: '/deployments', icon: Rocket },
     { name: 'Guardrails', path: '/guardrails', icon: Shield },
     { name: 'Bottlenecks', path: '/bottlenecks', icon: AlertTriangle },
-    { name: 'Settings', path: '/preferences', icon: Settings },
+    { name: 'Settings',    path: '/preferences', icon: Settings },
   ];
 
   return (
